@@ -32,25 +32,52 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
+    // prepare metadata base
+    const metadataBase = {
+      name: values.title,
+      description: values.description,
+      image: "",
+      external_url: "",
+      animation_url: "",
+      properties: {
+        category: values.category,
+        location: values.location
+      }
+    };
+
     setLoading(true);
     message.info("Uploading video and thumbnail to IPFS");
-    // const [videoHash, thumbnailHash] = await upload({
-    //   files: [videoFileInput, thumbnailFileInput]
-    // });
-    // TODO Upload logic using pinata
-    // first upload the video, then the thumbnail
-    // then construct metadata and upload it {name, description, image, external_url, animation_url properties {category, location}}
-    // image is the thumbnail, animation_url is the video should be in ipfs://<CID> format
-    console.log("uploadRes ->v,t", videoHash, thumbnailHash);
-    const thumbnailCID = thumbnailHash.split("://")[1];
-    const videoCID = videoHash.split("://")[1];
-    const metadataCID = metadataHash.split("://")[1];
-    console.log("metadataCID", metadataCID);
-    console.log("thumbnailCID", thumbnailCID);
-    console.log("videoCID", videoCID);
-    message.success("Thumbnail and video are uploaded to IPFS");
-    message.info("Adding video info to the contract");
+    const formData = new FormData();
+    formData.append("thumbnailFile", thumbnailFileInput);
+    formData.append("videoFile", videoFileInput);
+    formData.append("metadataBase", JSON.stringify(metadataBase));
     try {
+      const res = await fetch("/api/pinata/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Error uploading video assets to IPFS:", error);
+        return message.error(
+          "Failed to upload video assets to IPFS. Please try again."
+        );
+      }
+      const { metadata, video, thumbnail } = await res.json();
+      console.log("metadata", metadata);
+      console.log("video", video);
+      console.log("thumbnail", thumbnail);
+      const metadataCID = metadata.cid;
+      const videoCID = video.cid;
+      const thumbnailCID = thumbnail.cid;
+      // TODO Upload logic using pinata
+      // first upload the video, then the thumbnail
+      // then construct metadata and upload it {name, description, image, external_url, animation_url properties {category, location}}
+      // image is the thumbnail, animation_url is the video should be in ipfs://<CID> format
+      console.log("uploadRes ->v,t,m", videoCID, thumbnailCID, metadataCID);
+      message.success("Thumbnail and video are uploaded to IPFS");
+      message.info("Adding video info to the contract");
+
       const ethersProvider = new BrowserProvider(walletProvider);
       const signer = await ethersProvider.getSigner();
       const tx = await vidverseContract

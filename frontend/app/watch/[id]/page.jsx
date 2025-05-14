@@ -21,11 +21,8 @@ import {
 import {
   HeartTwoTone,
   CheckCircleTwoTone,
-  LikeOutlined,
   ShareAltOutlined,
   DownloadOutlined,
-  DollarCircleOutlined,
-  CommentOutlined,
   ExportOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -46,7 +43,6 @@ export default function VideoPage({ params }) {
   const [relatedVideos, setRelatedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [video, setVideo] = useState(null);
-  const [tipAmountInput, setTipAmountInput] = useState(null);
 
   const { id } = use(params);
   const { address: account } = useAppKitAccount();
@@ -163,8 +159,45 @@ export default function VideoPage({ params }) {
                   marginTop: "10px"
                 }}
               >
-                <Title level={5}>{video?.title}</Title>
-                {isVideoOwner && <VideoEditDrawer video={video} />}
+                {/* Title on the left */}
+                <Title level={5} style={{ margin: 0 }}>
+                  {video?.title}
+                </Title>
+                {/* Actions on the right */}
+                <Space size="middle">
+                  <a
+                    href={`https://ipfs.io/ipfs/${video?.videoHash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                  >
+                    <Button type="text" icon={<DownloadOutlined />} />
+                  </a>
+                  <Button
+                    type="text"
+                    icon={<ShareAltOutlined />}
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator
+                          .share({
+                            title: `${video?.title} | VidVerse`,
+                            text: `${video?.title} | VidVerse`,
+                            url: window.location.href
+                          })
+                          .catch((err) =>
+                            console.error("Failed to share video:", err)
+                          );
+                      } else {
+                        console.log(
+                          "Web Share API not supported in your browser"
+                        );
+                        navigator.clipboard.writeText(window.location.href);
+                        message.success("Link copied to clipboard");
+                      }
+                    }}
+                  />
+                  {isVideoOwner && <VideoEditDrawer video={video} />}
+                </Space>
               </Space>
 
               <br />
@@ -264,7 +297,6 @@ export default function VideoPage({ params }) {
               </Row>
             </div>
           )}
-          <Divider />
         </Col>
         <Col xs={24} md={8}>
           <Title level={4}>Related Videos</Title>
