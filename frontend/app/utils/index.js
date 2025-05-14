@@ -18,3 +18,6 @@ export const vidverseContract = new Contract(
   VIDVERSE_ABI,
   defaultProvider
 );
+
+export const ellipsisString = (str, first, last) =>
+  str.slice(0, first) + "..." + str.slice(-last);
