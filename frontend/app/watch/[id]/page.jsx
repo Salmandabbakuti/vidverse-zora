@@ -252,7 +252,7 @@ export default function VideoPage({ params }) {
 
                 <a
                   title="NERO Scan"
-                  href={`${EXPLORER_URL}/token/${VIDVERSE_CONTRACT_ADDRESS}/tab=Transfers&a=${video?.id}`}
+                  href={`${EXPLORER_URL}/token/${video?.coinAddress}`}
                   target="_blank"
                   rel="noreferrer"
                 >
