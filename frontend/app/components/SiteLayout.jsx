@@ -1,13 +1,18 @@
 "use client";
-import { Divider, Layout } from "antd";
-import { Button } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { Divider, Layout, Button, Avatar, Badge } from "antd";
 import { PlayCircleOutlined } from "@ant-design/icons";
+import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
 import Link from "next/link";
+import UploadDrawer from "./UploadDrawer";
 import "antd/dist/reset.css";
 
 const { Header, Footer, Content } = Layout;
 
 export default function SiteLayout({ children }) {
+  const { address: account } = useAppKitAccount();
+  const { open, close } = useAppKit();
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -51,7 +56,29 @@ export default function SiteLayout({ children }) {
             </h3>
           </div>
         </Link>
-        <appkit-button />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            padding: "0 20px"
+          }}
+        >
+          <UploadDrawer />
+          <Badge dot>
+            <Avatar
+              size={"large"}
+              icon={account ? null : <UserOutlined />}
+              src={
+                account
+                  ? `https://api.dicebear.com/5.x/open-peeps/svg?seed=${account}`
+                  : null
+              }
+              onClick={() => open({ view: account ? "Account" : "Connect" })}
+              style={{ cursor: "pointer", border: "1px solid #000" }}
+            />
+          </Badge>
+        </div>
       </Header>
 
       <Content
