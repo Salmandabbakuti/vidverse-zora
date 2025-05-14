@@ -35,26 +35,54 @@ export default function VideoEditDrawer({ video: videoData }) {
     if (!account) return message.error("Please connect your wallet first");
     if (selectedNetworkId !== "eip155:84532")
       return message.error("Please switch to Base Sepolia Testnet");
-    let thumbnailHash = videoData?.thumbnailHash || "";
+    let thumbnailCID = videoData?.thumbnailHash || "";
     setLoading(true);
+    // prepare metadata base
+    const metadataBase = {
+      name: values.title,
+      description: values.description,
+      image: `ipfs://${thumbnailCID}`,
+      external_url: "",
+      animation_url: `ipfs://${videoData?.videoHash}`,
+      properties: {
+        category: values.category,
+        location: values.location
+      }
+    };
+    const formData = new FormData();
+    if (thumbnailFileInput) {
+      formData.append("thumbnailFile", thumbnailFileInput);
+    }
+    formData.append("metadataBase", JSON.stringify(metadataBase));
+
     try {
       if (thumbnailFileInput) {
         message.info("Uploading new thumbnail to IPFS");
-        // const thumbnailIpfs = await upload({
-        //   client: thirdwebClient,
-        //   uploadWithoutDirectory: true,
-        //   files: [thumbnailFileInput]
-        // });
-        console.log("uploadRes -> t", thumbnailIpfs);
-        thumbnailHash = thumbnailIpfs?.split("://")[1];
-        metadataHash = videoData?.metadataHash || "";
-        console.log("thumbnailHash", thumbnailHash);
-        message.success("Thumbnail uploaded to IPFS");
-        message.info("Updating video info in the contract");
+        formData.append("file", thumbnailFileInput);
       }
-      // TODO: Upload metadata to IPFS
-      let metadataHash = videoData?.metadataHash || "";
-      if (!thumbnailHash)
+      const res = await fetch("/api/pinata/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Error uploading video assets to IPFS:", error);
+        message.error(
+          "Failed to upload video assets to IPFS. Please try again."
+        );
+        return;
+      }
+
+      message.success("Thumbnail and metadata uploaded to IPFS");
+      message.info("Updating video info in the contract");
+      const { metadata, video, thumbnail } = await res.json();
+      console.log("uploaded metadata", metadata);
+      console.log("uploaded video", video);
+      console.log("uploaded thumbnail", thumbnail);
+      const metadataCID = metadata.cid;
+      thumbnailCID = thumbnail.cid;
+
+      if (!thumbnailCID)
         return message.error("Thumbnail is required to update video info");
       const ethersProvider = new BrowserProvider(walletProvider);
       const signer = await ethersProvider.getSigner();
@@ -66,8 +94,8 @@ export default function VideoEditDrawer({ video: videoData }) {
           values.description,
           values.category,
           values.location,
-          thumbnailHash,
-          metadataHash
+          thumbnailCID,
+          metadataCID
         );
       await tx.wait();
       message.success(

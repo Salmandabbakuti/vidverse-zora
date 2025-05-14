@@ -6,35 +6,41 @@ export async function POST(request) {
   const thumbnailFile = formData.get("thumbnailFile");
   const videoFile = formData.get("videoFile");
   const metadataBase = formData.get("metadataBase");
+  if (!metadataBase) {
+    return NextResponse.json(
+      { error: "MetadataBase is required" },
+      { status: 400 }
+    );
+  }
   const metadataBaseJson = JSON.parse(metadataBase);
   console.log("metadataBaseJson", metadataBaseJson);
   console.log("videoFile", videoFile);
   console.log("thumbnailFile", thumbnailFile);
-  console.log("metadataBase", metadataBase);
-  if (!thumbnailFile || !videoFile) {
-    return NextResponse.json(
-      { error: "Thumbnail and video files are required" },
-      { status: 400 }
-    );
-  }
   try {
-    const { cid: folderCID } = await pinFilesToIPFS(
-      [thumbnailFile, videoFile],
-      {
+    const filesToPin = [];
+    let folderCID = "";
+    if (thumbnailFile) filesToPin.push(thumbnailFile);
+    if (videoFile) filesToPin.push(videoFile);
+    if (filesToPin.length) {
+      const uploadRes = await pinFilesToIPFS(filesToPin, {
         metadata: {
           name: `VidVerse_${metadataBaseJson.name}_assets_${Date.now()}`
         }
-      }
-    );
+      });
 
-    console.log("uploadRes", uploadRes);
+      folderCID = uploadRes.cid;
+    }
 
     const finalMetadata = {
       ...metadataBaseJson,
-      image: `ipfs://${folderCID}/${thumbnailFile.name}`,
-      animation_url: `ipfs://${folderCID}/${videoFile.name}`
+      ...(thumbnailFile
+        ? { image: `ipfs://${folderCID}/${thumbnailFile.name}` }
+        : {}),
+      ...(videoFile
+        ? { animation_url: `ipfs://${folderCID}/${videoFile.name}` }
+        : {})
     };
-    console.log("finalMetadata", finalMetadata);
+    console.log("finalMetadata before uploading to IPFS", finalMetadata);
     // pin the metadata to IPFS
     const metadataRes = await pinJSONToIPFS(finalMetadata, {
       metadata: {
@@ -46,10 +52,10 @@ export async function POST(request) {
     return NextResponse.json({
       metadata: metadataRes,
       video: {
-        cid: `${folderCID}/${videoFile.name}`
+        cid: finalMetadata.animation_url.split("ipfs://")[1]
       },
       thumbnail: {
-        cid: `${folderCID}/${thumbnailFile.name}`
+        cid: finalMetadata.image.split("ipfs://")[1]
       }
     });
   } catch (error) {
