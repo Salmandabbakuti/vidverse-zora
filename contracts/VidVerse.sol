@@ -102,7 +102,7 @@ contract VidVerse {
             symbol,
             msg.sender, // platformReferrer
             address(0), // currency use address(0) for ETH/WETH
-            -199200, // tickLower - 199200 for WETH/ETH pairs
+            -208200, // tickLower -208200 for WETH/ETH pairs
             msg.value // orderSize - must match msg.value
         );
 
