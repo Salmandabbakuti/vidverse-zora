@@ -1,7 +1,7 @@
 "use client";
 import { UserOutlined } from "@ant-design/icons";
-import { Divider, Layout, Button, Avatar, Badge } from "antd";
-import { PlayCircleOutlined } from "@ant-design/icons";
+import { Divider, Layout, Button, Avatar, Badge, Input } from "antd";
+import { PlayCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
 import Link from "next/link";
 import UploadDrawer from "./UploadDrawer";
@@ -11,7 +11,7 @@ const { Header, Footer, Content } = Layout;
 
 export default function SiteLayout({ children }) {
   const { address: account } = useAppKitAccount();
-  const { open, close } = useAppKit();
+  const { open } = useAppKit();
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -64,6 +64,20 @@ export default function SiteLayout({ children }) {
             padding: "0 20px"
           }}
         >
+          {/* Search Box */}
+          <Input
+            size="large"
+            prefix={<SearchOutlined />}
+            placeholder="Search"
+            className="nav-search"
+            style={{
+              width: "100%",
+              maxWidth: "600px",
+              margin: "0 20px",
+              borderRadius: "20px"
+            }}
+            onChange={(e) => {}}
+          />
           <UploadDrawer />
           <Badge dot>
             <Avatar
