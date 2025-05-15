@@ -16,7 +16,10 @@ import {
   Space,
   Tabs,
   List,
-  Image
+  Image,
+  Statistic,
+  Tag,
+  Descriptions
 } from "antd";
 import {
   HeartTwoTone,
@@ -28,6 +31,7 @@ import {
 import dayjs from "dayjs";
 import { useAppKitAccount } from "@reown/appkit/react";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { getCoin } from "@zoralabs/coins-sdk";
 import Link from "next/link";
 import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
@@ -43,6 +47,7 @@ export default function VideoPage({ params }) {
   const [relatedVideos, setRelatedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [video, setVideo] = useState(null);
+  const [coinDetails, setCoinDetails] = useState(null);
 
   const { id } = use(params);
   const { address: account } = useAppKitAccount();
@@ -80,6 +85,25 @@ export default function VideoPage({ params }) {
     }
   };
 
+  const getCoinDetails = async () => {
+    if (!video?.coinAddress) return;
+    setLoading(true);
+    try {
+      const res = await getCoin({
+        address: video?.coinAddress,
+        chain: 84532 // base sepolia
+      });
+      console.log("Coin res:", res);
+      const coin = res?.data?.zora20Token;
+      console.log("Coin details:", coin);
+      setCoinDetails(coin);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching coin details:", error);
+    }
+  };
+
   const isVideoOwner = useMemo(() => {
     if (!video || !account) return false;
     return video?.owner?.toLowerCase() === account?.toLowerCase();
@@ -92,6 +116,12 @@ export default function VideoPage({ params }) {
   useEffect(() => {
     fetchVideo();
   }, [id, account]);
+
+  useEffect(() => {
+    if (video?.coinAddress) {
+      getCoinDetails();
+    }
+  }, [video?.coinAddress]);
 
   if (!loading && !video?.videoHash) {
     return (
@@ -299,33 +329,186 @@ export default function VideoPage({ params }) {
           )}
         </Col>
         <Col xs={24} md={8}>
-          <Title level={4}>Related Videos</Title>
-          {loading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <Card
-                  key={index}
-                  loading
-                  style={{ borderRadius: 20 }}
-                  cover={
-                    <div
-                      style={{
-                        height: 150,
-                        borderRadius: 20
-                      }}
-                    />
+          {loading || !video ? (
+            <Card loading style={{ borderRadius: "20px", minHeight: 400 }} />
+          ) : (
+            <Card
+              title={coinDetails?.name || "Coin Details"}
+              style={{ borderRadius: "20px" }}
+              extra={
+                <a
+                  href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <ExportOutlined title="View on Etherscan" />
+                </a>
+              }
+            >
+              {/* Coin Statistics */}
+              {/* <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic
+                    title="Market Cap"
+                    value={video?.marketCap || 0}
+                    prefix="$"
+                    precision={2}
+                  />
+                </Col>
+                <Col span={12}>
+                  <Statistic
+                    title="Volume (24h)"
+                    value={video?.volume24h || 0}
+                    prefix="$"
+                    precision={2}
+                  />
+                </Col>
+                <Col span={12} style={{ marginTop: 16 }}>
+                  <Statistic
+                    title="Earnings"
+                    value={video?.earnings || 0}
+                    prefix="$"
+                    precision={2}
+                  />
+                </Col>
+                <Col span={12} style={{ marginTop: 16 }}>
+                  <Statistic title="Holders" value={video?.holders || 0} />
+                </Col>
+              </Row> */}
+              {/* coin stats with Descriptions component */}
+              <Descriptions
+                layout="vertical"
+                column={2}
+                colon={false}
+                size="small"
+                items={[
+                  {
+                    label: "Market Cap",
+                    children: (
+                      <Statistic
+                        value={coinDetails?.marketCap || 0}
+                        prefix="$"
+                        precision={2}
+                      />
+                    )
+                  },
+                  {
+                    label: "Volume (24h)",
+                    children: (
+                      <Statistic
+                        value={video?.volume24h || 0}
+                        prefix="$"
+                        precision={2}
+                      />
+                    )
+                  },
+                  {
+                    label: "Earnings",
+                    children: (
+                      <Statistic
+                        value={video?.earnings || 0}
+                        prefix="$"
+                        precision={2}
+                      />
+                    )
+                  },
+                  {
+                    label: "Holders",
+                    children: (
+                      <Statistic value={coinDetails?.uniqueHolders || 0} />
+                    )
+                  },
+                  {
+                    label: "Total Supply",
+                    children: (
+                      <Statistic value={coinDetails?.totalSupply || 0} />
+                    )
                   }
+                ]}
+              />
+              <Divider />
+              {/* Buy/Sell Section */}
+              <Space style={{ width: "100%", justifyContent: "center" }}>
+                <Input placeholder="Amount" type="number" min={0} />
+                <Button
+                  variant="solid"
+                  shape="round"
+                  style={{
+                    backgroundColor: "#02bf76",
+                    color: "white"
+                  }}
                 >
-                  <Card.Meta avatar={<Skeleton.Avatar />} />
-                </Card>
-              ))
-            : relatedVideos.map((relatedVideo) => (
-                <Link
-                  key={relatedVideo?.id}
-                  href={`/watch/${relatedVideo?.id}`}
-                >
-                  <VideoCard video={relatedVideo} />
-                </Link>
-              ))}
+                  Buy
+                </Button>
+                <Button color="red" variant="solid" shape="round">
+                  Sell
+                </Button>
+              </Space>
+              <Divider />
+              {/* Tabs Section */}
+              <Tabs
+                defaultActiveKey="comments"
+                items={[
+                  {
+                    key: "comments",
+                    label: "Comments",
+                    children: <Empty description="No comments yet" />
+                  },
+                  {
+                    key: "holders",
+                    label: `Holders (${coinDetails?.uniqueHolders || 0})`,
+                    children: <Empty description="No holders yet" />
+                  },
+                  {
+                    key: "activity",
+                    label: "Activity",
+                    children: <Empty description="No activity yet" />
+                  },
+                  {
+                    key: "details",
+                    label: "Details",
+                    children: (
+                      <Descriptions
+                        column={1}
+                        colon={false}
+                        size="large"
+                        items={[
+                          {
+                            label: "Name",
+                            children: coinDetails?.name || "-"
+                          },
+                          {
+                            label: "Symbol",
+                            children: coinDetails?.symbol || "-"
+                          },
+                          {
+                            label: "Address",
+                            children: coinDetails?.address || "-"
+                          },
+                          {
+                            label: "Chain",
+                            children: coinDetails?.chainId || "-"
+                          },
+                          {
+                            label: "Creator",
+                            children: coinDetails?.creatorAddress || "-"
+                          },
+                          {
+                            label: "Created At",
+                            // createdAt is in 2025-05-14T11:14:30 format
+                            children: dayjs(coinDetails?.createdAt || 0).format(
+                              "h:mm A MMM D, YYYY"
+                            )
+                          }
+                          // Add more details as needed
+                        ]}
+                      />
+                    )
+                  }
+                ]}
+              />
+            </Card>
+          )}
         </Col>
       </Row>
     </div>
