@@ -9,16 +9,13 @@ import {
   Typography,
   Skeleton,
   Divider,
-  Popconfirm,
   Button,
   Input,
   Empty,
   Space,
   Tabs,
-  List,
   Image,
   Statistic,
-  Tag,
   Descriptions
 } from "antd";
 import {
@@ -35,22 +32,23 @@ import { getCoin } from "@zoralabs/coins-sdk";
 import Link from "next/link";
 import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
-import VideoCard from "@/app/components/VideoCard";
+// import VideoCard from "@/app/components/VideoCard";
 import VideoEditDrawer from "@/app/components/VideoEditDrawer";
 import { ellipsisString, vidverseContract } from "@/app/utils";
-import { EXPLORER_URL, VIDVERSE_CONTRACT_ADDRESS } from "@/app/utils/constants";
+import { EXPLORER_URL } from "@/app/utils/constants";
 
 const { Title, Text, Paragraph } = Typography;
 dayjs.extend(relativeTime);
 
 export default function VideoPage({ params }) {
-  const [relatedVideos, setRelatedVideos] = useState([]);
+  // const [relatedVideos, setRelatedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [video, setVideo] = useState(null);
   const [coinDetails, setCoinDetails] = useState(null);
 
   const { id } = use(params);
   const { address: account } = useAppKitAccount();
+  console.log("account in watch page", account);
 
   const fetchVideo = async () => {
     setLoading(true);
@@ -72,11 +70,11 @@ export default function VideoPage({ params }) {
       console.log("Video fetched:", video);
       setVideo(video);
       // set related videos
-      const relatedVideos = videosList.filter(
-        (video) => Number(video?.id).toString() !== id
-      );
-      console.log("Related videos:", relatedVideos);
-      setRelatedVideos(relatedVideos);
+      // const relatedVideos = videosList.filter(
+      //   (video) => Number(video?.id).toString() !== id
+      // );
+      // console.log("Related videos:", relatedVideos);
+      // setRelatedVideos(relatedVideos);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -397,6 +395,16 @@ export default function VideoPage({ params }) {
                     children: (
                       <Statistic
                         value={video?.volume24h || 0}
+                        prefix="$"
+                        precision={2}
+                      />
+                    )
+                  },
+                  {
+                    label: "Total Vol",
+                    children: (
+                      <Statistic
+                        value={coinDetails?.totalVolume || 0}
                         prefix="$"
                         precision={2}
                       />

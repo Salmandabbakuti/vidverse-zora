@@ -3,8 +3,13 @@ import { useState, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
 import { ConfigProvider, theme } from "antd";
 import { createAppKit } from "@reown/appkit/react";
-import { EthersAdapter } from "@reown/appkit-adapter-ethers";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { mainnet, base, baseSepolia } from "@reown/appkit/networks";
+
+// 0. Setup queryClient
+const queryClient = new QueryClient();
 
 // 1. Get projectId at https://cloud.reown.com
 const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID;
@@ -19,9 +24,16 @@ const metadata = {
   icons: ["https://avatars.mywebsite.com/"]
 };
 
-// 3. Create the AppKit instance
+// 3. Create the adapter
+const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
+  ssr: true
+});
+
+// 4. Create the AppKit instance
 createAppKit({
-  adapters: [new EthersAdapter()],
+  adapters: [wagmiAdapter],
   metadata,
   networks,
   projectId,
@@ -56,7 +68,11 @@ export default function Web3Provider({ children }) {
         algorithm: [theme.defaultAlgorithm]
       }}
     >
-      {mounted && children}
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          {mounted && children}
+        </QueryClientProvider>
+      </WagmiProvider>
     </ConfigProvider>
   );
 }

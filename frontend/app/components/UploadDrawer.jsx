@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { Drawer, Form, Input, Select, Space, Button, message } from "antd";
 import { VideoCameraAddOutlined } from "@ant-design/icons";
-import {
-  useAppKitProvider,
-  useAppKitAccount,
-  useAppKitState
-} from "@reown/appkit/react";
-import { BrowserProvider } from "ethers";
+import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
 
 export default function UploadDrawer() {
@@ -19,13 +15,15 @@ export default function UploadDrawer() {
 
   const { address: account } = useAppKitAccount();
   const { selectedNetworkId } = useAppKitState();
-  const { walletProvider } = useAppKitProvider("eip155");
   const router = useRouter();
+  const signer = useEthersSigner();
+  console.log("signer", signer);
 
   const handleSubmit = async (values) => {
     console.log("thumbnail", thumbnailFileInput);
     console.log("video", videoFileInput);
-    if (!account) return message.error("Please connect your wallet first");
+    if (!account || !signer)
+      return message.error("Please connect your wallet first");
     if (selectedNetworkId !== "eip155:84532")
       return message.error("Please switch to Base Sepolia Testnet");
     if (!thumbnailFileInput || !videoFileInput) {
@@ -77,9 +75,6 @@ export default function UploadDrawer() {
       console.log("uploadRes ->v,t,m", videoCID, thumbnailCID, metadataCID);
       message.success("Thumbnail and video are uploaded to IPFS");
       message.info("Adding video info to the contract");
-
-      const ethersProvider = new BrowserProvider(walletProvider);
-      const signer = await ethersProvider.getSigner();
       const tx = await vidverseContract
         .connect(signer)
         .addVideo(

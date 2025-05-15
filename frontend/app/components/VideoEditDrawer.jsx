@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  useAppKitProvider,
-  useAppKitAccount,
-  useAppKitState
-} from "@reown/appkit/react";
-import { BrowserProvider } from "ethers";
+import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
 import {
   Drawer,
   Form,
@@ -17,6 +12,7 @@ import {
 } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
 
 export default function VideoEditDrawer({ video: videoData }) {
@@ -26,9 +22,10 @@ export default function VideoEditDrawer({ video: videoData }) {
 
   const { address: account } = useAppKitAccount();
   const { selectedNetworkId } = useAppKitState();
-  const { walletProvider } = useAppKitProvider("eip155");
 
   const router = useRouter();
+  const signer = useEthersSigner();
+  console.log("signer", signer);
 
   const handleSubmit = async (values) => {
     console.log("thumbnail", thumbnailFileInput);
@@ -84,8 +81,6 @@ export default function VideoEditDrawer({ video: videoData }) {
 
       if (!thumbnailCID)
         return message.error("Thumbnail is required to update video info");
-      const ethersProvider = new BrowserProvider(walletProvider);
-      const signer = await ethersProvider.getSigner();
       const tx = await vidverseContract
         .connect(signer)
         .updateVideoInfo(
