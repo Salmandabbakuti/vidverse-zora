@@ -9,13 +9,14 @@ import {
   Space,
   Statistic,
   Tabs,
-  message
+  message,
+  Image,
+  Tag
 } from "antd";
 import dayjs from "dayjs";
 import { tradeCoin, simulateBuy } from "@zoralabs/coins-sdk";
 import { usePublicClient, useWalletClient, useAccount } from "wagmi";
 import { parseEther } from "viem";
-import { ExportOutlined } from "@ant-design/icons";
 import { EXPLORER_URL } from "@/app/utils/constants";
 
 export default function CoinCard({ coinDetails = {} }) {
@@ -77,15 +78,23 @@ export default function CoinCard({ coinDetails = {} }) {
 
   return (
     <Card
-      title={coinDetails?.name || "Coin Details"}
+      title={<Tag color="blue">{coinDetails?.name}</Tag>}
       style={{ borderRadius: "20px" }}
+      actions={[<small style={{ color: "gray" }}>Powered by Zora</small>]}
       extra={
         <a
+          title="View on Basescan"
           href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
           target="_blank"
           rel="noreferrer"
         >
-          <ExportOutlined title="View on Etherscan" />
+          <Image
+            src="https://etherscan.io/favicon.ico"
+            style={{ cursor: "pointer" }}
+            width={20}
+            height={20}
+            preview={false}
+          />
         </a>
       }
     >
@@ -130,7 +139,7 @@ export default function CoinCard({ coinDetails = {} }) {
             label: "Earnings",
             children: (
               <Statistic
-                value={coinDetails?.earnings || 0}
+                value={coinDetails?.creatorEarnings?.[0]?.amountUsd || 0}
                 prefix="$"
                 precision={2}
               />
@@ -148,7 +157,7 @@ export default function CoinCard({ coinDetails = {} }) {
       />
       <Divider />
       {/* Buy/Sell Section */}
-      <Space.Compact style={{ alignItems: "center" }}>
+      <Space.Compact block style={{ maxWidth: "400px", alignItems: "center" }}>
         <Button
           variant="solid"
           shape="round"
@@ -205,7 +214,15 @@ export default function CoinCard({ coinDetails = {} }) {
                   },
                   {
                     label: "Address",
-                    children: coinDetails?.address || "-"
+                    children: (
+                      <a
+                        href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {coinDetails?.address || "-"}
+                      </a>
+                    )
                   },
                   {
                     label: "Chain",
@@ -213,16 +230,25 @@ export default function CoinCard({ coinDetails = {} }) {
                   },
                   {
                     label: "Creator",
-                    children: coinDetails?.creatorAddress || "-"
+                    children: (
+                      <a
+                        href={`${EXPLORER_URL}/token/${coinDetails?.creatorAddress}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {coinDetails?.creatorAddress || "-"}
+                      </a>
+                    )
                   },
                   {
                     label: "Created At",
                     // createdAt is in 2025-05-14T11:14:30 format
-                    children: dayjs(coinDetails?.createdAt || 0).format(
-                      "h:mm A MMM D, YYYY"
-                    )
+                    children: coinDetails?.createdAt
+                      ? dayjs(coinDetails?.createdAt || 0).format(
+                          "MMM D, YYYY, h:mm A"
+                        )
+                      : "-"
                   }
-                  // Add more details as needed
                 ]}
               />
             )

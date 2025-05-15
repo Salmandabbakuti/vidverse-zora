@@ -81,6 +81,7 @@ export default function VideoPage({ params }) {
   const getCoinDetails = async () => {
     if (!video?.coinAddress) return;
     setLoading(true);
+    message.info("Hang tight! Fetching coin details..");
     try {
       const res = await getCoin({
         address: video?.coinAddress,
@@ -240,39 +241,9 @@ export default function VideoPage({ params }) {
               {/* view on opensea link */}
               <Space>
                 <Typography.Text type="secondary">
-                  View Video NFT On:
+                  View Video Coin On:{" "}
                 </Typography.Text>
-                {/* <a
-                  title="OpenSea"
-                  href={`https://testnets.opensea.io/assets/arbitrum_sepolia/${VIDVERSE_CONTRACT_ADDRESS}/${video?.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Image
-                    src="https://opensea.io/favicon.ico"
-                    width={20}
-                    height={20}
-                    preview={false}
-                    style={{ cursor: "pointer" }}
-                  />
-                </a> */}
-                {/* view on rarible */}
-                {/* <a
-                  title="Rarible"
-                  href={`https://testnet.rarible.com/token/arbitrum/${VIDVERSE_CONTRACT_ADDRESS}:${video?.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Image
-                    src="https://rarible.com/favicon.ico"
-                    width={20}
-                    height={20}
-                    preview={false}
-                    style={{ cursor: "pointer" }}
-                  />
-                </a> */}
                 {/* view on etherscan */}
-
                 <a
                   title="NERO Scan"
                   href={`${EXPLORER_URL}/token/${video?.coinAddress}`}
@@ -323,7 +294,7 @@ export default function VideoPage({ params }) {
         </Col>
         <Col xs={24} md={8}>
           {loading || !coinDetails ? (
-            <Card loading style={{ borderRadius: "20px", minHeight: 400 }} />
+            <Card loading style={{ borderRadius: "20px", minHeight: 600 }} />
           ) : (
             <CoinCard coinDetails={coinDetails} />
           )}
