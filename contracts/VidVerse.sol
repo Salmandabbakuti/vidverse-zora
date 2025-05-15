@@ -2,46 +2,8 @@
 pragma solidity 0.8.28;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-
-interface IZoraFactory {
-    function deploy(
-        address payoutRecipient,
-        address[] memory owners,
-        string memory uri,
-        string memory name,
-        string memory symbol,
-        address platformReferrer,
-        address currency,
-        int24 tickLower,
-        uint256 orderSize
-    ) external payable returns (address, uint256);
-}
-
-interface ICoin {
-    function setContractURI(string memory newURI) external;
-
-    function setPayoutRecipient(address newPayoutRecipient) external;
-
-    function buy(
-        address recipient,
-        uint256 orderSize,
-        uint256 minAmountOut,
-        uint160 sqrtPriceLimitX96,
-        address tradeReferrer
-    ) external payable returns (uint256, uint256);
-
-    function sell(
-        address recipient,
-        uint256 orderSize,
-        uint256 minAmountOut,
-        uint160 sqrtPriceLimitX96,
-        address tradeReferrer
-    ) external returns (uint256, uint256);
-
-    function tokenURI() external view returns (string memory);
-
-    function platformReferrer() external view returns (address);
-}
+import "./interfaces/ICoin.sol";
+import "./interfaces/IZoraFactory.sol";
 
 contract VidVerse {
     using Strings for uint256;
@@ -58,6 +20,7 @@ contract VidVerse {
         string videoHash;
         address owner;
         address coinAddress;
+        uint256 createdAt;
     }
 
     mapping(uint256 id => Video video) public videos;
@@ -139,7 +102,7 @@ contract VidVerse {
             symbol,
             msg.sender, // platformReferrer
             address(0), // currency use address(0) for ETH/WETH
-            -199200, // tickLower - 199200 for WETH/ETH pairs
+            -208200, // tickLower -208200 for WETH/ETH pairs
             msg.value // orderSize - must match msg.value
         );
 
@@ -152,7 +115,8 @@ contract VidVerse {
             _thumbnailHash,
             _videoHash,
             msg.sender,
-            coinAddr
+            coinAddr,
+            block.timestamp
         );
 
         emit VideoAdded(
