@@ -263,21 +263,16 @@ export default function VideoPage({ params }) {
               {/* Channel Information */}
               <Row align="middle" gutter={8} style={{ margin: "5px" }}>
                 <Col>
-                  <Link href={`/channel/${video?.owner}`}>
-                    <Avatar
-                      size="large"
-                      src={`https://api.dicebear.com/5.x/open-peeps/svg?seed=${video?.owner}`}
-                      style={{ cursor: "pointer", border: "1px solid grey" }}
-                    />
-                  </Link>
+                  <Avatar
+                    size="large"
+                    src={`https://api.dicebear.com/5.x/open-peeps/svg?seed=${video?.owner}`}
+                    style={{ cursor: "pointer", border: "1px solid grey" }}
+                  />
                 </Col>
                 <Col>
-                  <Link href={`/channel/${video?.owner}`}>
-                    <Text strong>{ellipsisString(video?.owner, 12, 8)}</Text>{" "}
-                    <CheckCircleTwoTone twoToneColor="#52c41a" />
-                  </Link>
+                  <Text strong>{ellipsisString(video?.owner, 12, 8)}</Text>{" "}
+                  <CheckCircleTwoTone twoToneColor="#52c41a" />
                   <br />
-
                   <Button
                     icon={<HeartTwoTone twoToneColor="#eb2f96" />}
                     type="primary"
