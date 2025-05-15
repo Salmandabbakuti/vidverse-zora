@@ -7,23 +7,17 @@ import {
   Card,
   Avatar,
   Typography,
-  Skeleton,
   Divider,
   Button,
-  Input,
   Empty,
   Space,
-  Tabs,
-  Image,
-  Statistic,
-  Descriptions
+  Image
 } from "antd";
 import {
   HeartTwoTone,
   CheckCircleTwoTone,
   ShareAltOutlined,
-  DownloadOutlined,
-  ExportOutlined
+  DownloadOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useAppKitAccount } from "@reown/appkit/react";
@@ -34,6 +28,7 @@ import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
 // import VideoCard from "@/app/components/VideoCard";
 import VideoEditDrawer from "@/app/components/VideoEditDrawer";
+import CoinCard from "@/app/components/CoinCard";
 import { ellipsisString, vidverseContract } from "@/app/utils";
 import { EXPLORER_URL } from "@/app/utils/constants";
 
@@ -330,192 +325,7 @@ export default function VideoPage({ params }) {
           {loading || !video ? (
             <Card loading style={{ borderRadius: "20px", minHeight: 400 }} />
           ) : (
-            <Card
-              title={coinDetails?.name || "Coin Details"}
-              style={{ borderRadius: "20px" }}
-              extra={
-                <a
-                  href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <ExportOutlined title="View on Etherscan" />
-                </a>
-              }
-            >
-              {/* Coin Statistics */}
-              {/* <Row gutter={16}>
-                <Col span={12}>
-                  <Statistic
-                    title="Market Cap"
-                    value={video?.marketCap || 0}
-                    prefix="$"
-                    precision={2}
-                  />
-                </Col>
-                <Col span={12}>
-                  <Statistic
-                    title="Volume (24h)"
-                    value={video?.volume24h || 0}
-                    prefix="$"
-                    precision={2}
-                  />
-                </Col>
-                <Col span={12} style={{ marginTop: 16 }}>
-                  <Statistic
-                    title="Earnings"
-                    value={video?.earnings || 0}
-                    prefix="$"
-                    precision={2}
-                  />
-                </Col>
-                <Col span={12} style={{ marginTop: 16 }}>
-                  <Statistic title="Holders" value={video?.holders || 0} />
-                </Col>
-              </Row> */}
-              {/* coin stats with Descriptions component */}
-              <Descriptions
-                layout="vertical"
-                column={2}
-                colon={false}
-                size="small"
-                items={[
-                  {
-                    label: "Market Cap",
-                    children: (
-                      <Statistic
-                        value={coinDetails?.marketCap || 0}
-                        prefix="$"
-                        precision={2}
-                      />
-                    )
-                  },
-                  {
-                    label: "Volume (24h)",
-                    children: (
-                      <Statistic
-                        value={video?.volume24h || 0}
-                        prefix="$"
-                        precision={2}
-                      />
-                    )
-                  },
-                  {
-                    label: "Total Vol",
-                    children: (
-                      <Statistic
-                        value={coinDetails?.totalVolume || 0}
-                        prefix="$"
-                        precision={2}
-                      />
-                    )
-                  },
-                  {
-                    label: "Earnings",
-                    children: (
-                      <Statistic
-                        value={video?.earnings || 0}
-                        prefix="$"
-                        precision={2}
-                      />
-                    )
-                  },
-                  {
-                    label: "Holders",
-                    children: (
-                      <Statistic value={coinDetails?.uniqueHolders || 0} />
-                    )
-                  },
-                  {
-                    label: "Total Supply",
-                    children: (
-                      <Statistic value={coinDetails?.totalSupply || 0} />
-                    )
-                  }
-                ]}
-              />
-              <Divider />
-              {/* Buy/Sell Section */}
-              <Space style={{ width: "100%", justifyContent: "center" }}>
-                <Input placeholder="Amount" type="number" min={0} />
-                <Button
-                  variant="solid"
-                  shape="round"
-                  style={{
-                    backgroundColor: "#02bf76",
-                    color: "white"
-                  }}
-                >
-                  Buy
-                </Button>
-                <Button color="red" variant="solid" shape="round">
-                  Sell
-                </Button>
-              </Space>
-              <Divider />
-              {/* Tabs Section */}
-              <Tabs
-                defaultActiveKey="comments"
-                items={[
-                  {
-                    key: "comments",
-                    label: "Comments",
-                    children: <Empty description="No comments yet" />
-                  },
-                  {
-                    key: "holders",
-                    label: `Holders (${coinDetails?.uniqueHolders || 0})`,
-                    children: <Empty description="No holders yet" />
-                  },
-                  {
-                    key: "activity",
-                    label: "Activity",
-                    children: <Empty description="No activity yet" />
-                  },
-                  {
-                    key: "details",
-                    label: "Details",
-                    children: (
-                      <Descriptions
-                        column={1}
-                        colon={false}
-                        size="large"
-                        items={[
-                          {
-                            label: "Name",
-                            children: coinDetails?.name || "-"
-                          },
-                          {
-                            label: "Symbol",
-                            children: coinDetails?.symbol || "-"
-                          },
-                          {
-                            label: "Address",
-                            children: coinDetails?.address || "-"
-                          },
-                          {
-                            label: "Chain",
-                            children: coinDetails?.chainId || "-"
-                          },
-                          {
-                            label: "Creator",
-                            children: coinDetails?.creatorAddress || "-"
-                          },
-                          {
-                            label: "Created At",
-                            // createdAt is in 2025-05-14T11:14:30 format
-                            children: dayjs(coinDetails?.createdAt || 0).format(
-                              "h:mm A MMM D, YYYY"
-                            )
-                          }
-                          // Add more details as needed
-                        ]}
-                      />
-                    )
-                  }
-                ]}
-              />
-            </Card>
+            <CoinCard coinDetails={coinDetails} />
           )}
         </Col>
       </Row>
