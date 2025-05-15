@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "VidVerse - Zora",
   description:
-    "VidVerse is a decentralized video platform that allows users to upload, share, and monetize their videos using blockchain technology."
+    "VidVerse is a decentralized video platform that allows users to upload, share, and monetize their videos with zora protocol"
 };
 
 export default function RootLayout({ children }) {

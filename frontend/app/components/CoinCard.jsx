@@ -35,7 +35,8 @@ export default function CoinCard({ coinDetails = {} }) {
     if (!coinDetails) return;
     if (!walletClient || !publicClient)
       return message.error("Please connect wallet first!");
-    if (tradeCoinInput < 0) return message.error("Invalid trade amount");
+    if (tradeCoinInput <= 0)
+      return message.error("Enter a valid amount to trade");
     setLoading({ [direction]: true });
     try {
       const tradeParams = {
@@ -167,7 +168,6 @@ export default function CoinCard({ coinDetails = {} }) {
           type="number"
           min={1}
           onChange={(e) => setTradeCoinInput(e.target.value)}
-          value={tradeCoinInput}
         />
 
         <Button
@@ -184,23 +184,8 @@ export default function CoinCard({ coinDetails = {} }) {
       <Divider />
       {/* Tabs Section */}
       <Tabs
-        defaultActiveKey="comments"
+        defaultActiveKey="details"
         items={[
-          {
-            key: "comments",
-            label: "Comments",
-            children: <Empty description="No comments yet" />
-          },
-          {
-            key: "holders",
-            label: `Holders (${coinDetails?.uniqueHolders || 0})`,
-            children: <Empty description="No holders yet" />
-          },
-          {
-            key: "activity",
-            label: "Activity",
-            children: <Empty description="No activity yet" />
-          },
           {
             key: "details",
             label: "Details",
@@ -241,6 +226,21 @@ export default function CoinCard({ coinDetails = {} }) {
                 ]}
               />
             )
+          },
+          {
+            key: "comments",
+            label: "Comments",
+            children: <Empty description="Comments coming soon" />
+          },
+          {
+            key: "holders",
+            label: `Holders (${coinDetails?.uniqueHolders || 0})`,
+            children: <Empty description="Holders list coming soon" />
+          },
+          {
+            key: "activity",
+            label: "Activity",
+            children: <Empty description="Activity coming soon" />
           }
         ]}
       />

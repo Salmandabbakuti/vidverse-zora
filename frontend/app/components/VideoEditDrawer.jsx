@@ -73,9 +73,7 @@ export default function VideoEditDrawer({ video: videoData }) {
       message.success("Thumbnail and metadata uploaded to IPFS");
       message.info("Updating video info in the contract");
       const { metadata, video, thumbnail } = await res.json();
-      console.log("uploaded metadata", metadata);
-      console.log("uploaded video", video);
-      console.log("uploaded thumbnail", thumbnail);
+      console.log("uploaded m,v,t->", metadata, video, thumbnail);
       const metadataCID = metadata.cid;
       thumbnailCID = thumbnail.cid;
 

@@ -62,15 +62,12 @@ export default function UploadDrawer() {
         );
       }
       const { metadata, video, thumbnail } = await res.json();
-      console.log("metadata", metadata);
-      console.log("video", video);
-      console.log("thumbnail", thumbnail);
+      console.log("uploadRes", { metadata, video, thumbnail });
       const metadataCID = metadata.cid;
       const videoCID = video.cid;
       const thumbnailCID = thumbnail.cid;
-      // TODO Upload logic using pinata
       // first upload the video, then the thumbnail
-      // then construct metadata and upload it {name, description, image, external_url, animation_url properties {category, location}}
+      // then construct metadata and upload it {name, description, image, external_url, animation_url, properties {category, location}}
       // image is the thumbnail, animation_url is the video should be in ipfs://<CID> format
       console.log("uploadRes ->v,t,m", videoCID, thumbnailCID, metadataCID);
       message.success("Thumbnail and video are uploaded to IPFS");

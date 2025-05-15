@@ -322,7 +322,7 @@ export default function VideoPage({ params }) {
           )}
         </Col>
         <Col xs={24} md={8}>
-          {loading || !video ? (
+          {loading || !coinDetails ? (
             <Card loading style={{ borderRadius: "20px", minHeight: 400 }} />
           ) : (
             <CoinCard coinDetails={coinDetails} />

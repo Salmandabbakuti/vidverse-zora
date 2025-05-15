@@ -13,9 +13,11 @@ export async function POST(request) {
     );
   }
   const metadataBaseJson = JSON.parse(metadataBase);
-  console.log("metadataBaseJson", metadataBaseJson);
-  console.log("videoFile", videoFile);
-  console.log("thumbnailFile", thumbnailFile);
+  console.log("upload input", {
+    thumbnailFile,
+    videoFile,
+    metadataBaseJson
+  });
   try {
     const filesToPin = [];
     let folderCID = "";
