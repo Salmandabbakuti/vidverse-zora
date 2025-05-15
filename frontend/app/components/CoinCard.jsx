@@ -110,6 +110,10 @@ export default function CoinCard({ coinDetails = {} }) {
             children: (
               <Statistic
                 value={coinDetails?.marketCap || 0}
+                valueStyle={{
+                  color: "#1890ff",
+                  fontWeight: "bold"
+                }}
                 prefix="$"
                 precision={2}
               />
@@ -120,6 +124,10 @@ export default function CoinCard({ coinDetails = {} }) {
             children: (
               <Statistic
                 value={coinDetails?.volume24h || 0}
+                valueStyle={{
+                  color: "#52c41a",
+                  fontWeight: "bold"
+                }}
                 prefix="$"
                 precision={2}
               />
@@ -130,6 +138,10 @@ export default function CoinCard({ coinDetails = {} }) {
             children: (
               <Statistic
                 value={coinDetails?.totalVolume || 0}
+                valueStyle={{
+                  color: "#3f8600",
+                  fontWeight: "bold"
+                }}
                 prefix="$"
                 precision={2}
               />
@@ -140,6 +152,10 @@ export default function CoinCard({ coinDetails = {} }) {
             children: (
               <Statistic
                 value={coinDetails?.creatorEarnings?.[0]?.amountUsd || 0}
+                valueStyle={{
+                  color: "#faad14",
+                  fontWeight: "bold"
+                }}
                 prefix="$"
                 precision={2}
               />
@@ -147,11 +163,26 @@ export default function CoinCard({ coinDetails = {} }) {
           },
           {
             label: "Holders",
-            children: <Statistic value={coinDetails?.uniqueHolders || 0} />
+            children: (
+              <Statistic
+                valueStyle={{
+                  fontWeight: "bold"
+                }}
+                value={coinDetails?.uniqueHolders || 0}
+              />
+            )
           },
           {
             label: "Total Supply",
-            children: <Statistic value={coinDetails?.totalSupply || 0} />
+            children: (
+              <Statistic
+                valueStyle={{
+                  color: "#ff4d4f",
+                  fontWeight: "bold"
+                }}
+                value={coinDetails?.totalSupply || 0}
+              />
+            )
           }
         ]}
       />
