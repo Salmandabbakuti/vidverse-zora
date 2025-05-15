@@ -18,6 +18,7 @@ import { tradeCoin, simulateBuy } from "@zoralabs/coins-sdk";
 import { usePublicClient, useWalletClient, useAccount } from "wagmi";
 import { parseEther } from "viem";
 import { EXPLORER_URL } from "@/app/utils/constants";
+import { abbreviateNumber } from "@/app/utils";
 
 export default function CoinCard({ coinDetails = {} }) {
   const [tradeCoinInput, setTradeCoinInput] = useState(0);
@@ -176,6 +177,7 @@ export default function CoinCard({ coinDetails = {} }) {
             label: "Total Supply",
             children: (
               <Statistic
+                formatter={abbreviateNumber}
                 valueStyle={{
                   color: "#ff4d4f",
                   fontWeight: "bold"

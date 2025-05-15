@@ -21,3 +21,9 @@ export const vidverseContract = new Contract(
 
 export const ellipsisString = (str, first, last) =>
   str.slice(0, first) + "..." + str.slice(-last);
+
+export const abbreviateNumber = (number) =>
+  Intl.NumberFormat("en", {
+    notation: "compact",
+    maximumFractionDigits: 2
+  }).format(number);
