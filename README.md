@@ -8,7 +8,7 @@ VidVerse is a decentralized, ad-free video sharing platform empowering content c
 
 ### Problem it solves
 
-are controlled by centralized entities that decide who gets reach, how they get paid, and how creators interact with their audience, lack of ownership for creators, and limited monetization options. VidVerse addresses these challenges by providing a decentralized platform where creators can tokenize their videos, allowing them to earn directly from their audience without relying on ads or intermediaries.
+Today’s creator platforms are controlled by centralized entities that decide who gets reach, how they get paid, and how creators interact with their audience, lack of ownership for creators, and limited monetization options. VidVerse addresses these challenges by providing a decentralized platform where creators can tokenize their videos, allowing them to earn directly from their audience without relying on ads or intermediaries.
 
 - **Decentralization**: Unlike traditional platforms, VidVerse is built on a decentralized protocol, ensuring that creators retain ownership and control over their content.
 - **Tokenization**: Each video is represented as a tradable token, allowing creators to monetize their work directly through the Zora Coins Protocol.
@@ -164,7 +164,7 @@ npm run dev
 
 ## Roadmap
 
-- [ ] subscription based content/holders only content(premium content). how about like onlyfans but onlyHolders
+- [ ] Subscription based content/holders only content(premium content). how about like onlyfans but onlyHolders
 - [ ] Tag-based and full-text search, filtering, sorting videos
 - [ ] Add support for video comments and likes
 - [ ] Add support for video playlists and channels
