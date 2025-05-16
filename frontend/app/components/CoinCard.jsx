@@ -84,20 +84,36 @@ export default function CoinCard({ coinDetails = {} }) {
       style={{ borderRadius: "20px" }}
       actions={[<small style={{ color: "gray" }}>Powered by Zora</small>]}
       extra={
-        <a
-          title="View on Basescan"
-          href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Image
-            src="https://etherscan.io/favicon.ico"
-            style={{ cursor: "pointer" }}
-            width={20}
-            height={20}
-            preview={false}
-          />
-        </a>
+        <Space>
+          <a
+            title="View on Basescan"
+            href={`${EXPLORER_URL}/token/${coinDetails?.address}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Image
+              src="https://etherscan.io/favicon.ico"
+              style={{ cursor: "pointer" }}
+              width={20}
+              height={20}
+              preview={false}
+            />
+          </a>
+          <a
+            title="View on Zora"
+            href={`https://testnet.zora.co/coin/bsep:${coinDetails?.address}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Image
+              src="https://zora.co/favicon.ico"
+              style={{ cursor: "pointer" }}
+              width={20}
+              height={20}
+              preview={false}
+            />
+          </a>
+        </Space>
       }
     >
       {/* Coin Statistics */}

@@ -258,6 +258,21 @@ export default function VideoPage({ params }) {
                     preview={false}
                   />
                 </a>
+                {/* View on zora app */}
+                <a
+                  title="View on Zora"
+                  href={`https://testnet.zora.co/coin/bsep:${video?.coinAddress}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Image
+                    src="https://zora.co/favicon.ico"
+                    style={{ cursor: "pointer" }}
+                    width={20}
+                    height={20}
+                    preview={false}
+                  />
+                </a>
               </Space>
               <Divider />
               {/* Channel Information */}

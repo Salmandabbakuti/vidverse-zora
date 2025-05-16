@@ -6,7 +6,7 @@ A decentralized video‑sharing platform where every video is a tradable token p
 
 VidVerse is a decentralized, ad-free video sharing platform empowering content creators to monetize their work through Zora Coins. Each video is a tradable token, allowing creators to earn from their content while maintaining ownership and control. The platform is built on the Zora protocol, enabling seamless integration with the Zora ecosystem. Viewers can watch content, trade fractional stakes in videos, and earn rewards—transforming passive views into active market engagement.
 
-![vidverse-zora-video-page-sc](https://github.com/user-attachments/assets/52d6acc4-f018-48d7-a597-60bdea427015)
+![vidverse-zora-video-page-sc](https://github.com/user-attachments/assets/3d72cd70-e6eb-49e6-bd92-0b7633def266)
 
 ### Problem it solves
 
@@ -152,7 +152,7 @@ npm run dev
 
 ### Screenshots
 
-![vidverse-zora-video-page-sc](https://github.com/user-attachments/assets/52d6acc4-f018-48d7-a597-60bdea427015)
+![vidverse-zora-video-page-sc](https://github.com/user-attachments/assets/3d72cd70-e6eb-49e6-bd92-0b7633def266)
 
 ## Changelog
 
