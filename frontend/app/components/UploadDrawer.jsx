@@ -30,13 +30,11 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
-    // prepare metadata base
+    // prepare metadata base. ther fileds like image, animation_url, content will be added in the api after uploading
     const metadataBase = {
       name: values.title,
       description: values.description,
-      image: "",
       external_url: "",
-      animation_url: "",
       properties: {
         category: values.category,
         location: values.location

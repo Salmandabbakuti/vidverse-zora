@@ -4,6 +4,10 @@
   "image": "ipfs://QmRKKu473QeJM7hvX894rCGmkJ5biGW57oXGqqA9drC7nq/swiss-train-view-thumb.jpeg",
   "external_url": "https://example.com",
   "animation_url": "ipfs://QmRKKu473QeJM7hvX894rCGmkJ5biGW57oXGqqA9drC7nq/Swiss-train-view.mp4",
+  "content": {
+    "mime": "video/mp4",
+    "uri": "ipfs://QmRKKu473QeJM7hvX894rCGmkJ5biGW57oXGqqA9drC7nq/Swiss-train-view.mp4"
+  },
   "properties": {
     "category": "Travel",
     "location": "Switzerland"

@@ -35,12 +35,16 @@ export async function POST(request) {
 
     const finalMetadata = {
       ...metadataBaseJson,
-      ...(thumbnailFile
-        ? { image: `ipfs://${folderCID}/${thumbnailFile.name}` }
-        : {}),
-      ...(videoFile
-        ? { animation_url: `ipfs://${folderCID}/${videoFile.name}` }
-        : {})
+      ...(thumbnailFile && {
+        image: `ipfs://${folderCID}/${thumbnailFile.name}`
+      }),
+      ...(videoFile && {
+        animation_url: `ipfs://${folderCID}/${videoFile.name}`,
+        content: {
+          mime: videoFile?.type || "video/mp4",
+          uri: `ipfs://${folderCID}/${videoFile.name}`
+        }
+      })
     };
     console.log("finalMetadata before uploading to IPFS", finalMetadata);
     // pin the metadata to IPFS

@@ -41,6 +41,10 @@ export default function VideoEditDrawer({ video: videoData }) {
       image: `ipfs://${thumbnailCID}`,
       external_url: "",
       animation_url: `ipfs://${videoData?.videoHash}`,
+      content: {
+        mime: "video/mp4", //TBF: hardcoded because we don't have the video file in edit info
+        uri: `ipfs://${videoData?.videoHash}`
+      },
       properties: {
         category: values.category,
         location: values.location
