@@ -19,6 +19,7 @@ import { usePublicClient, useWalletClient, useAccount } from "wagmi";
 import { parseEther } from "viem";
 import { EXPLORER_URL } from "@/app/utils/constants";
 import { abbreviateNumber } from "@/app/utils";
+import Typography from "antd/es/typography/Typography";
 
 export default function CoinCard({ coinDetails = {} }) {
   const [tradeCoinInput, setTradeCoinInput] = useState(0);
@@ -54,15 +55,15 @@ export default function CoinCard({ coinDetails = {} }) {
       console.log("Trade params:", tradeParams);
       // if direction buy, simulate buy
       if (direction === "buy") {
-        const simulateRes = await simulateBuy({
-          target: coinDetails?.address,
-          requestedOrderSize: parseEther(tradeCoinInput),
-          publicClient
-        });
-        console.log("buy simulation res:", simulateRes);
-        message.info(
-          `You'll receive ${simulateRes?.amountOut} ${coinDetails?.symbol} for the requested order size of ${tradeCoinInput}`
-        );
+        // const simulateRes = await simulateBuy({
+        //   target: coinDetails?.address,
+        //   requestedOrderSize: parseEther(tradeCoinInput),
+        //   publicClient
+        // });
+        // console.log("buy simulation res:", simulateRes);
+        // message.info(
+        //   `You'll receive ${simulateRes?.amountOut} ${coinDetails?.symbol} for the requested order size of ${tradeCoinInput}`
+        // );
       }
       const res = await tradeCoin(tradeParams, walletClient, publicClient);
       console.log("Trade coin res:", res);
@@ -188,42 +189,75 @@ export default function CoinCard({ coinDetails = {} }) {
           }
         ]}
       />
-      <Divider />
       {/* Buy/Sell Section */}
-      <Space.Compact block style={{ maxWidth: "400px", alignItems: "center" }}>
-        <Button
-          variant="solid"
-          shape="round"
-          size="large"
-          style={{
-            backgroundColor: "#02bf76",
-            color: "white"
-          }}
-          loading={loading?.buy}
-          onClick={() => handleTradeCoin("buy")}
-        >
-          Buy
-        </Button>
-        <Input
-          size="large"
-          placeholder="Enter amount to buy/sell"
-          type="number"
-          min={1}
-          onChange={(e) => setTradeCoinInput(e.target.value)}
-        />
-
-        <Button
-          color="red"
-          variant="solid"
-          shape="round"
-          size="large"
-          loading={loading?.sell}
-          onClick={() => handleTradeCoin("sell")}
-        >
-          Sell
-        </Button>
-      </Space.Compact>
-      <Divider />
+      <Tabs
+        defaultActiveKey="buy"
+        animated
+        // type="card"
+        items={[
+          {
+            key: "buy",
+            label: (
+              <Typography.Text style={{ color: "#02bf76" }}>
+                Buy
+              </Typography.Text>
+            ),
+            children: (
+              <Space.Compact block>
+                <Input
+                  size="large"
+                  placeholder="Enter ETH amount to spend"
+                  type="number"
+                  min={1}
+                  onChange={(e) => setTradeCoinInput(e.target.value)}
+                  value={tradeCoinInput}
+                />
+                <Button
+                  variant="solid"
+                  shape="round"
+                  size="large"
+                  style={{
+                    backgroundColor: "#02bf76",
+                    color: "white"
+                  }}
+                  loading={loading?.buy}
+                  onClick={() => handleTradeCoin("buy")}
+                >
+                  Buy
+                </Button>
+              </Space.Compact>
+            )
+          },
+          {
+            key: "sell",
+            label: (
+              <Typography.Text style={{ color: "red" }}>Sell</Typography.Text>
+            ),
+            children: (
+              <Space.Compact block>
+                <Input
+                  value={tradeCoinInput}
+                  size="large"
+                  placeholder="Enter amount of coins to sell"
+                  type="number"
+                  min={1}
+                  onChange={(e) => setTradeCoinInput(e.target.value)}
+                />
+                <Button
+                  color="red"
+                  variant="solid"
+                  shape="round"
+                  size="large"
+                  loading={loading?.sell}
+                  onClick={() => handleTradeCoin("sell")}
+                >
+                  Sell
+                </Button>
+              </Space.Compact>
+            )
+          }
+        ]}
+      />
       {/* Tabs Section */}
       <Tabs
         defaultActiveKey="details"
