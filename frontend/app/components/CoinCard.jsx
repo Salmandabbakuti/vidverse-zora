@@ -66,7 +66,11 @@ export default function CoinCard({ coinDetails = {} }) {
       }
       const res = await tradeCoin(tradeParams, walletClient, publicClient);
       console.log("Trade coin res:", res);
-      message.success("Coin traded successfully");
+      const infoMessage =
+        direction === "buy"
+          ? `Bought coins worth ${tradeCoinInput} ETH successfully`
+          : `Sold ${tradeCoinInput} coins successfully`;
+      message.success(infoMessage);
       setLoading({ [direction]: false });
     } catch (error) {
       setLoading({ [direction]: false });
@@ -251,7 +255,7 @@ export default function CoinCard({ coinDetails = {} }) {
                     gap: "10px"
                   }}
                 >
-                  {[0.001, 0.01, 0.05, 0.1, 0.5].map((amount) => (
+                  {["0.001", "0.01", "0.05", "0.1", "0.5"].map((amount) => (
                     <Tag
                       key={amount}
                       style={{
@@ -312,6 +316,7 @@ export default function CoinCard({ coinDetails = {} }) {
                         cursor: "pointer",
                         fontSize: "14px"
                       }}
+                      onClick={() => message.info("Feature coming soon!")}
                     >
                       {amount}%
                     </Tag>

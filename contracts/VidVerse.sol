@@ -93,6 +93,16 @@ contract VidVerse {
         address[] memory owners = new address[](2);
         owners[0] = msg.sender;
         owners[1] = address(this); // contract itself is also an owner to update metadata and rewards share
+        // config parameters for the Uniswap v3 pool; `abi.encode(address currency, int24 tickLower, int24 tickUpper, uint16 numDiscoveryPositions, uint256 maxDiscoverySupplyShare)`
+        // values may not be accurate, and zora team isn't helpful in providing the right values at all
+        bytes memory poolConfig = abi.encode(
+            2, // version
+            address(0), // currency use address(0) for ETH/WETH
+            -250000, // tickLower -250000 for WETH/ETH pairs
+            -200000, // tickUpper -200000 for for WETH/ETH pairs
+            10, // numDiscoveryPositions
+            50000000000000000 // maxDiscoverySupplyShare
+        );
         // Deploy coin via ZoraFactory
         (address coinAddr, ) = zoraFactory.deploy{value: msg.value}(
             msg.sender, // payoutRecipient
@@ -100,9 +110,8 @@ contract VidVerse {
             metadataUri,
             name,
             symbol,
+            poolConfig,
             msg.sender, // platformReferrer
-            address(0), // currency use address(0) for ETH/WETH
-            -208200, // tickLower -208200 for WETH/ETH pairs
             msg.value // orderSize - must match msg.value
         );
 

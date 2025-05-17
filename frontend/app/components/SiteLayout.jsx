@@ -115,7 +115,7 @@ export default function SiteLayout({ children }) {
         >
           ©{new Date().getFullYear()} VidVerse. Powered by Zora Protocol & Reown
         </a>
-        <p style={{ fontSize: "12px" }}>v0.0.9</p>
+        <p style={{ fontSize: "12px" }}>v0.1.0</p>
       </Footer>
     </Layout>
   );

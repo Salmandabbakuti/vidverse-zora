@@ -8,9 +8,8 @@ interface IZoraFactory {
         string memory uri,
         string memory name,
         string memory symbol,
+        bytes memory poolConfig,
         address platformReferrer,
-        address currency,
-        int24 tickLower,
         uint256 orderSize
     ) external payable returns (address, uint256);
 }
