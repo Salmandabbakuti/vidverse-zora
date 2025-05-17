@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Descriptions,
-  Divider,
   Empty,
   Input,
   Space,
@@ -22,7 +21,7 @@ import { abbreviateNumber } from "@/app/utils";
 import Typography from "antd/es/typography/Typography";
 
 export default function CoinCard({ coinDetails = {} }) {
-  const [tradeCoinInput, setTradeCoinInput] = useState(0);
+  const [tradeCoinInput, setTradeCoinInput] = useState(null);
   const [loading, setLoading] = useState({
     buy: false,
     sell: false
@@ -38,7 +37,7 @@ export default function CoinCard({ coinDetails = {} }) {
     if (!coinDetails) return;
     if (!walletClient || !publicClient)
       return message.error("Please connect wallet first!");
-    if (tradeCoinInput <= 0)
+    if (!tradeCoinInput || tradeCoinInput <= 0)
       return message.error("Enter a valid amount to trade");
     setLoading({ [direction]: true });
     try {
@@ -219,29 +218,55 @@ export default function CoinCard({ coinDetails = {} }) {
               </Typography.Text>
             ),
             children: (
-              <Space.Compact block>
-                <Input
-                  size="large"
-                  placeholder="Enter ETH amount to spend"
-                  type="number"
-                  min={1}
-                  onChange={(e) => setTradeCoinInput(e.target.value)}
-                  value={tradeCoinInput}
-                />
-                <Button
-                  variant="solid"
-                  shape="round"
-                  size="large"
+              <>
+                <Space.Compact block>
+                  <Input
+                    size="large"
+                    placeholder="Enter ETH amount to spend"
+                    type="number"
+                    min={1}
+                    onChange={(e) => setTradeCoinInput(e.target.value)}
+                    value={tradeCoinInput}
+                    suffix="ETH"
+                  />
+                  <Button
+                    variant="solid"
+                    shape="round"
+                    size="large"
+                    style={{
+                      backgroundColor: "#02bf76",
+                      color: "white"
+                    }}
+                    loading={loading?.buy}
+                    onClick={() => handleTradeCoin("buy")}
+                  >
+                    Buy
+                  </Button>
+                </Space.Compact>
+                <Space
                   style={{
-                    backgroundColor: "#02bf76",
-                    color: "white"
+                    margin: "10px 0",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "10px"
                   }}
-                  loading={loading?.buy}
-                  onClick={() => handleTradeCoin("buy")}
                 >
-                  Buy
-                </Button>
-              </Space.Compact>
+                  {[0.001, 0.01, 0.05, 0.1, 0.5].map((amount) => (
+                    <Tag
+                      key={amount}
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "14px"
+                      }}
+                      onClick={() => {
+                        setTradeCoinInput(amount);
+                      }}
+                    >
+                      {amount} ETH
+                    </Tag>
+                  ))}
+                </Space>
+              </>
             )
           },
           {
@@ -250,26 +275,49 @@ export default function CoinCard({ coinDetails = {} }) {
               <Typography.Text style={{ color: "red" }}>Sell</Typography.Text>
             ),
             children: (
-              <Space.Compact block>
-                <Input
-                  value={tradeCoinInput}
-                  size="large"
-                  placeholder="Enter amount of coins to sell"
-                  type="number"
-                  min={1}
-                  onChange={(e) => setTradeCoinInput(e.target.value)}
-                />
-                <Button
-                  color="red"
-                  variant="solid"
-                  shape="round"
-                  size="large"
-                  loading={loading?.sell}
-                  onClick={() => handleTradeCoin("sell")}
+              <>
+                <Space.Compact block>
+                  <Input
+                    value={tradeCoinInput}
+                    size="large"
+                    placeholder="Enter amount of coins to sell"
+                    type="number"
+                    min={1}
+                    onChange={(e) => setTradeCoinInput(e.target.value)}
+                    suffix={coinDetails?.symbol}
+                  />
+                  <Button
+                    color="red"
+                    variant="solid"
+                    shape="round"
+                    size="large"
+                    loading={loading?.sell}
+                    onClick={() => handleTradeCoin("sell")}
+                  >
+                    Sell
+                  </Button>
+                </Space.Compact>
+                <Space
+                  style={{
+                    margin: "10px 0",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "10px"
+                  }}
                 >
-                  Sell
-                </Button>
-              </Space.Compact>
+                  {[10, 25, 50, 75, 100].map((amount) => (
+                    <Tag
+                      key={amount}
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "14px"
+                      }}
+                    >
+                      {amount}%
+                    </Tag>
+                  ))}
+                </Space>
+              </>
             )
           }
         ]}
