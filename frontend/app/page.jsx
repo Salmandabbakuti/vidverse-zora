@@ -14,12 +14,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const fetchVideos = async () => {
-    console.log("Fetching videos...");
     setLoading(true);
     try {
       // fetch videos from contract
       const nextVideoId = await vidverseContract.nextVideoId();
-      console.log("Next video ID:", nextVideoId);
       const videosList = await Promise.all(
         Array.from({ length: Number(nextVideoId) }, (_, i) =>
           vidverseContract.videos(i)

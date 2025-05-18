@@ -23,10 +23,8 @@ import dayjs from "dayjs";
 import { useAppKitAccount } from "@reown/appkit/react";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { getCoin } from "@zoralabs/coins-sdk";
-import Link from "next/link";
 import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
-// import VideoCard from "@/app/components/VideoCard";
 import VideoEditDrawer from "@/app/components/VideoEditDrawer";
 import CoinCard from "@/app/components/CoinCard";
 import { ellipsisString, vidverseContract } from "@/app/utils";
@@ -36,40 +34,21 @@ const { Title, Text, Paragraph } = Typography;
 dayjs.extend(relativeTime);
 
 export default function VideoPage({ params }) {
-  // const [relatedVideos, setRelatedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [video, setVideo] = useState(null);
+  const [coinDetailsLoading, setCoinDetailsLoading] = useState(true);
   const [coinDetails, setCoinDetails] = useState(null);
 
   const { id } = use(params);
   const { address: account } = useAppKitAccount();
-  console.log("account in watch page", account);
 
   const fetchVideo = async () => {
     setLoading(true);
     try {
-      // fetch videos from contract
-      const nextVideoId = await vidverseContract.nextVideoId();
-      console.log("Next video ID:", nextVideoId);
-      const videosList = await Promise.all(
-        Array.from({ length: Number(nextVideoId) }, (_, i) =>
-          vidverseContract.videos(i)
-        )
-      );
-      console.log("Videos fetched:", videosList);
-      // get the video with the given id
-      console.log("Video ID:", typeof id);
-      const video = videosList.find(
-        (video) => Number(video?.id).toString() === id
-      );
+      // fetch video from contract
+      const video = await vidverseContract.videos(id);
       console.log("Video fetched:", video);
       setVideo(video);
-      // set related videos
-      // const relatedVideos = videosList.filter(
-      //   (video) => Number(video?.id).toString() !== id
-      // );
-      // console.log("Related videos:", relatedVideos);
-      // setRelatedVideos(relatedVideos);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -80,7 +59,7 @@ export default function VideoPage({ params }) {
 
   const getCoinDetails = async () => {
     if (!video?.coinAddress) return;
-    setLoading(true);
+    setCoinDetailsLoading(true);
     message.info("Hang tight! Fetching coin details..");
     try {
       const res = await getCoin({
@@ -89,11 +68,10 @@ export default function VideoPage({ params }) {
       });
       console.log("Coin res:", res);
       const coin = res?.data?.zora20Token;
-      console.log("Coin details:", coin);
       setCoinDetails(coin);
-      setLoading(false);
+      setCoinDetailsLoading(false);
     } catch (error) {
-      setLoading(false);
+      setCoinDetailsLoading(false);
       console.error("Error fetching coin details:", error);
     }
   };
@@ -102,10 +80,6 @@ export default function VideoPage({ params }) {
     if (!video || !account) return false;
     return video?.owner?.toLowerCase() === account?.toLowerCase();
   }, [video, account]);
-
-  console.log("Video owner:", video?.owner);
-  console.log("Account:", account);
-  console.log("Is video owner:", isVideoOwner);
 
   useEffect(() => {
     fetchVideo();
@@ -303,7 +277,7 @@ export default function VideoPage({ params }) {
           )}
         </Col>
         <Col xs={24} md={8}>
-          {loading || !coinDetails ? (
+          {coinDetailsLoading ? (
             <Card loading style={{ borderRadius: "20px", minHeight: 600 }} />
           ) : (
             <CoinCard coinDetails={coinDetails} />

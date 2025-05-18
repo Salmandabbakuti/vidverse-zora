@@ -17,11 +17,8 @@ export default function UploadDrawer() {
   const { selectedNetworkId } = useAppKitState();
   const router = useRouter();
   const signer = useEthersSigner();
-  console.log("signer", signer);
 
   const handleSubmit = async (values) => {
-    console.log("thumbnail", thumbnailFileInput);
-    console.log("video", videoFileInput);
     if (!account || !signer)
       return message.error("Please connect your wallet first");
     if (selectedNetworkId !== "eip155:84532")
@@ -30,6 +27,8 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
+    console.log("thumbnail", thumbnailFileInput);
+    console.log("video", videoFileInput);
     // prepare metadata base. ther fileds like image, animation_url, content will be added in the api after uploading
     const metadataBase = {
       name: values.title,

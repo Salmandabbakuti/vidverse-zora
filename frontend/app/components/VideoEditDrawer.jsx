@@ -25,15 +25,14 @@ export default function VideoEditDrawer({ video: videoData }) {
 
   const router = useRouter();
   const signer = useEthersSigner();
-  console.log("signer", signer);
 
   const handleSubmit = async (values) => {
-    console.log("thumbnail", thumbnailFileInput);
     if (!account) return message.error("Please connect your wallet first");
     if (selectedNetworkId !== "eip155:84532")
       return message.error("Please switch to Base Sepolia Testnet");
     let thumbnailCID = videoData?.thumbnailHash || "";
     setLoading(true);
+    console.log("thumbnail", thumbnailFileInput);
     // prepare metadata base
     const metadataBase = {
       name: values.title,

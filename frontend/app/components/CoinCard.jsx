@@ -30,8 +30,6 @@ export default function CoinCard({ coinDetails = {} }) {
 
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient({ chainId: 84532 });
-  console.log("Wallet client:", walletClient);
-  console.log("Public client:", publicClient);
 
   const handleTradeCoin = async (direction) => {
     if (!coinDetails) return;
