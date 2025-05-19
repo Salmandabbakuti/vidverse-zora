@@ -33,6 +33,11 @@ export default function VideoEditDrawer({ video: videoData }) {
     let thumbnailCID = videoData?.thumbnailHash || "";
     setLoading(true);
     console.log("thumbnail", thumbnailFileInput);
+    if (thumbnailFileInput && thumbnailFileInput?.size > 0.5 * 1024 * 1024) {
+      return message.error(
+        "Thumbnail file size exceeds 500KB. Please upload a smaller thumbnail. We are working on increasing the limit."
+      );
+    }
     // prepare metadata base
     const metadataBase = {
       name: values.title,

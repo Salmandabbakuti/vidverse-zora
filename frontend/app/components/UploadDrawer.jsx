@@ -27,6 +27,18 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
+    console.log("videoFileInput", videoFileInput);
+    console.log("thumbnailFileInput", thumbnailFileInput);
+    if (videoFileInput.size > 3.5 * 1024 * 1024) {
+      return message.error(
+        "Video file size exceeds 3.5MB. Please upload a smaller video. We are working on increasing the limit."
+      );
+    }
+    if (thumbnailFileInput.size > 0.5 * 1024 * 1024) {
+      return message.error(
+        "Thumbnail file size exceeds 500KB. Please upload a smaller thumbnail. We are working on increasing the limit."
+      );
+    }
     console.log("thumbnail", thumbnailFileInput);
     console.log("video", videoFileInput);
     // prepare metadata base. ther fileds like image, animation_url, content will be added in the api after uploading
