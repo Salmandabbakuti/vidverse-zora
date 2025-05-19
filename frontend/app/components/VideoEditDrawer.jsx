@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
 import { pinata } from "@/app/utils/pinata";
+import { getPinataSignedUrl } from "@/app/actions";
 
 export default function VideoEditDrawer({ video: videoData }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -59,25 +60,22 @@ export default function VideoEditDrawer({ video: videoData }) {
     formData.append("metadataBase", JSON.stringify(metadataBase));
 
     try {
-      const pinataUrlRes = await fetch("/api/pinata/url");
-      if (!pinataUrlRes.ok) {
-        console.error("Error fetching Pinata signed URL:", error);
-        message.error("Failed to fetch Pinata signed URL. Please try again.");
-        return;
-      }
-      const { url: pinataSignedUrl } = await pinataUrlRes.json();
+      const [thumbnailUploadUrl, metadataUploadUrl] = await Promise.all([
+        getPinataSignedUrl(),
+        getPinataSignedUrl()
+      ]);
 
       if (thumbnailFileInput) {
         message.info("Uploading new thumbnail to IPFS");
         const thumbnailUploadRes = await pinata.upload.public
           .file(thumbnailFileInput)
-          .url(pinataSignedUrl);
+          .url(thumbnailUploadUrl);
         console.log("thumbnailUploadRes", thumbnailUploadRes);
         metadataBase.image = `ipfs://${thumbnailUploadRes.cid}`;
       }
       const metadataUploadRes = await pinata.upload.public
         .json(metadataBase)
-        .url(pinataSignedUrl);
+        .url(metadataUploadUrl);
       console.log("metadataUploadRes", metadataUploadRes);
       message.success("Thumbnail and metadata uploaded to IPFS");
       message.info("Updating video info in the contract");

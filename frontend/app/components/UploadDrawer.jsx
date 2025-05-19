@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
 import { pinata } from "@/app/utils/pinata";
+import { getPinataSignedUrl } from "@/app/actions";
 
 export default function UploadDrawer() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -51,20 +52,19 @@ export default function UploadDrawer() {
     setLoading(true);
     message.info("Uploading video and thumbnail to IPFS");
     try {
-      const pinataUrlRes = await fetch("/api/pinata/url");
-      if (!pinataUrlRes.ok) {
-        console.error("Error fetching pinata signed URL", error);
-        return message.error(
-          "Failed to get pinata signed URL. Please try again."
-        );
-      }
-      const { url: pinataSignedUrl } = await pinataUrlRes.json();
+      // get the signed URL from pinata
+      const [videoUploadUrl, thumbnailUploadUrl, metadataUploadUrl] =
+        await Promise.all([
+          getPinataSignedUrl(),
+          getPinataSignedUrl(),
+          getPinataSignedUrl()
+        ]);
       // const uploadRes = await pinata.upload.public
       //   .fileArray([videoFileInput, thumbnailFileInput])
       //   .url(pinataSignedUrl);
       const [videoUploadRes, thumbnailUploadRes] = await Promise.all([
-        pinata.upload.public.file(videoFileInput).url(pinataSignedUrl),
-        pinata.upload.public.file(thumbnailFileInput).url(pinataSignedUrl)
+        pinata.upload.public.file(videoFileInput).url(videoUploadUrl),
+        pinata.upload.public.file(thumbnailFileInput).url(thumbnailUploadUrl)
       ]);
 
       console.log("uploadRes t,v->", thumbnailUploadRes, videoUploadRes);
@@ -79,8 +79,8 @@ export default function UploadDrawer() {
       };
       // pin the metadata to IPFS
       const metadataUploadRes = await pinata.upload.public
-        .json(finalMetadata, {})
-        .url(pinataSignedUrl);
+        .json(finalMetadata)
+        .url(metadataUploadUrl);
       console.log("metadataUploadRes", metadataUploadRes);
 
       const metadataCID = metadataUploadRes.cid;
