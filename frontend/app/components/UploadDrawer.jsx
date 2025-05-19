@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
+import { pinata } from "@/app/utils/pinata";
 
 export default function UploadDrawer() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -27,6 +28,13 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
+    // enforce file size limit
+    if (videoFileInput.size > 100 * 1024 * 1024)
+      return message.error("Video file size exceeds 100MB limit");
+
+    if (thumbnailFileInput.size > 5 * 1024 * 1024)
+      return message.error("Thumbnail file size exceeds 5MB limit");
+
     console.log("thumbnail", thumbnailFileInput);
     console.log("video", videoFileInput);
     // prepare metadata base. ther fileds like image, animation_url, content will be added in the api after uploading
@@ -42,27 +50,42 @@ export default function UploadDrawer() {
 
     setLoading(true);
     message.info("Uploading video and thumbnail to IPFS");
-    const formData = new FormData();
-    formData.append("thumbnailFile", thumbnailFileInput);
-    formData.append("videoFile", videoFileInput);
-    formData.append("metadataBase", JSON.stringify(metadataBase));
     try {
-      const res = await fetch("/api/pinata/upload", {
-        method: "POST",
-        body: formData
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error uploading video assets to IPFS:", error);
+      const pinataUrlRes = await fetch("/api/pinata/url");
+      if (!pinataUrlRes.ok) {
+        console.error("Error fetching pinata signed URL", error);
         return message.error(
-          "Failed to upload video assets to IPFS. Please try again."
+          "Failed to get pinata signed URL. Please try again."
         );
       }
-      const { metadata, video, thumbnail } = await res.json();
-      console.log("uploadRes", { metadata, video, thumbnail });
-      const metadataCID = metadata.cid;
-      const videoCID = video.cid;
-      const thumbnailCID = thumbnail.cid;
+      const { url: pinataSignedUrl } = await pinataUrlRes.json();
+      // const uploadRes = await pinata.upload.public
+      //   .fileArray([videoFileInput, thumbnailFileInput])
+      //   .url(pinataSignedUrl);
+      const [videoUploadRes, thumbnailUploadRes] = await Promise.all([
+        pinata.upload.public.file(videoFileInput).url(pinataSignedUrl),
+        pinata.upload.public.file(thumbnailFileInput).url(pinataSignedUrl)
+      ]);
+
+      console.log("uploadRes t,v->", thumbnailUploadRes, videoUploadRes);
+      const finalMetadata = {
+        ...metadataBase,
+        image: `ipfs://${thumbnailUploadRes.cid}`,
+        animation_url: `ipfs://${videoUploadRes.cid}`,
+        content: {
+          mime: videoFileInput?.type || "video/mp4",
+          uri: `ipfs://${videoUploadRes.cid}`
+        }
+      };
+      // pin the metadata to IPFS
+      const metadataUploadRes = await pinata.upload.public
+        .json(finalMetadata, {})
+        .url(pinataSignedUrl);
+      console.log("metadataUploadRes", metadataUploadRes);
+
+      const metadataCID = metadataUploadRes.cid;
+      const videoCID = videoUploadRes.cid;
+      const thumbnailCID = thumbnailUploadRes.cid;
       // first upload the video, then the thumbnail
       // then construct metadata and upload it {name, description, image, external_url, animation_url, properties {category, location}}
       // image is the thumbnail, animation_url is the video should be in ipfs://<CID> format

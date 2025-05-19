@@ -14,6 +14,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
+import { pinata } from "@/app/utils/pinata";
 
 export default function VideoEditDrawer({ video: videoData }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -31,6 +32,8 @@ export default function VideoEditDrawer({ video: videoData }) {
     if (selectedNetworkId !== "eip155:84532")
       return message.error("Please switch to Base Sepolia Testnet");
     let thumbnailCID = videoData?.thumbnailHash || "";
+    if (thumbnailFileInput && thumbnailFileInput.size > 5 * 1024 * 1024)
+      return message.error("Thumbnail file size exceeds 5MB limit");
     setLoading(true);
     console.log("thumbnail", thumbnailFileInput);
     // prepare metadata base
@@ -56,29 +59,30 @@ export default function VideoEditDrawer({ video: videoData }) {
     formData.append("metadataBase", JSON.stringify(metadataBase));
 
     try {
-      if (thumbnailFileInput) {
-        message.info("Uploading new thumbnail to IPFS");
-        formData.append("file", thumbnailFileInput);
-      }
-      const res = await fetch("/api/pinata/upload", {
-        method: "POST",
-        body: formData
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error uploading video assets to IPFS:", error);
-        message.error(
-          "Failed to upload video assets to IPFS. Please try again."
-        );
+      const pinataUrlRes = await fetch("/api/pinata/url");
+      if (!pinataUrlRes.ok) {
+        console.error("Error fetching Pinata signed URL:", error);
+        message.error("Failed to fetch Pinata signed URL. Please try again.");
         return;
       }
+      const { url: pinataSignedUrl } = await pinataUrlRes.json();
 
+      if (thumbnailFileInput) {
+        message.info("Uploading new thumbnail to IPFS");
+        const thumbnailUploadRes = await pinata.upload.public
+          .file(thumbnailFileInput)
+          .url(pinataSignedUrl);
+        console.log("thumbnailUploadRes", thumbnailUploadRes);
+        metadataBase.image = `ipfs://${thumbnailUploadRes.cid}`;
+      }
+      const metadataUploadRes = await pinata.upload.public
+        .json(metadataBase)
+        .url(pinataSignedUrl);
+      console.log("metadataUploadRes", metadataUploadRes);
       message.success("Thumbnail and metadata uploaded to IPFS");
       message.info("Updating video info in the contract");
-      const { metadata, video, thumbnail } = await res.json();
-      console.log("uploaded m,v,t->", metadata, video, thumbnail);
-      const metadataCID = metadata.cid;
-      thumbnailCID = thumbnail.cid;
+      const metadataCID = metadataUploadRes.cid;
+      thumbnailCID = metadataBase.image.split("ipfs://")[1];
 
       if (!thumbnailCID)
         return message.error("Thumbnail is required to update video info");
