@@ -55,19 +55,13 @@ Today’s creator platforms are controlled by centralized entities that decide w
     - Pins new metadata off‑chain and calls `ICoin.setContractURI(newUri)`
     - Updates video metadata in the `videos` mapping and emits `VideoInfoUpdated`
 
-2. **IPFS Pinning Service**: [`frontend/app/utils/pinata.js`](frontend/app/utils/pinata.js)
+2. **IPFS Pinning Service**: [`frontend/app/actions/pinata.js`](frontend/app/actions/pinata.js)
 
-   - **pinFilesToIPFS(files, options)**
+- Uses Pinata’s API to pin files and JSON metadata to IPFS.
+- Uploads multiple blobs (video + thumbnail) into a single IPFS folder
+- Returns CIDs for video, thumbnail, and metadata.
 
-     - Uploads multiple blobs (video + thumbnail) into a single IPFS folder
-     - Returns a base `folderCID` for asset URIs
-
-   - **pinJSONToIPFS(json, options)**
-
-     - Uploads metadata JSON blob to IPFS
-     - Returns its own `metadataCID`
-
-3. **Backend API Routes (/api/pinata/upload.ts):** [`frontend/app/api/pinata/upload/route.js`](frontend/app/api/pinata/upload/route.js)
+3. **uploadVideoAssets server action:** [`frontend/app/actions/pinata.js`](frontend/app/actions/pinata.js#L10)
 
    - **POST**
 
@@ -97,8 +91,8 @@ Today’s creator platforms are controlled by centralized entities that decide w
    - **Upload Form**: [`frontend/app/components/UploadDrawer.jsx`](frontend/app/components/UploadDrawer.jsx)
 
      - File inputs for video & thumbnail, text inputs for title/description/etc.
-     - Uses `FormData` to send files and JSON metadata to `/api/pinata/upload`.
-     - Api route handles file uploads and returns IPFS CIDs.
+     - Uses `FormData` to send files and JSON metadata to `uploadVideoAssets` server action.
+     - `uploadVideoAssets` server action handles file uploads and returns IPFS CIDs.
 
    - **On-Chain Interaction**
 

@@ -14,6 +14,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
+import { uploadVideoAssets } from "@/app/actions/pinata";
 
 export default function VideoEditDrawer({ video: videoData }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -30,6 +31,8 @@ export default function VideoEditDrawer({ video: videoData }) {
     if (!account) return message.error("Please connect your wallet first");
     if (selectedNetworkId !== "eip155:84532")
       return message.error("Please switch to Base Sepolia Testnet");
+    if (thumbnailFileInput && thumbnailFileInput.size > 5 * 1024 * 1024)
+      return message.error("Thumbnail file size exceeds 5MB limit");
     let thumbnailCID = videoData?.thumbnailHash || "";
     setLoading(true);
     console.log("thumbnail", thumbnailFileInput);
@@ -56,26 +59,17 @@ export default function VideoEditDrawer({ video: videoData }) {
     formData.append("metadataBase", JSON.stringify(metadataBase));
 
     try {
-      if (thumbnailFileInput) {
-        message.info("Uploading new thumbnail to IPFS");
-        formData.append("file", thumbnailFileInput);
-      }
-      const res = await fetch("/api/pinata/upload", {
-        method: "POST",
-        body: formData
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error uploading video assets to IPFS:", error);
-        message.error(
-          "Failed to upload video assets to IPFS. Please try again."
+      if (thumbnailFileInput) message.info("Uploading new thumbnail to IPFS");
+      const uploadRes = await uploadVideoAssets(formData);
+      if (uploadRes?.error) {
+        console.error("Error uploading video assets to IPFS:", uploadRes.error);
+        return message.error(
+          `Failed to upload video assets to IPFS. ${uploadRes.error}`
         );
-        return;
       }
-
       message.success("Thumbnail and metadata uploaded to IPFS");
       message.info("Updating video info in the contract");
-      const { metadata, video, thumbnail } = await res.json();
+      const { metadata, video, thumbnail } = uploadRes;
       console.log("uploaded m,v,t->", metadata, video, thumbnail);
       const metadataCID = metadata.cid;
       thumbnailCID = thumbnail.cid;

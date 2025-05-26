@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import { vidverseContract } from "@/app/utils";
+import { uploadVideoAssets } from "@/app/actions/pinata";
 
 export default function UploadDrawer() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -27,6 +28,11 @@ export default function UploadDrawer() {
       message.error("Please upload a video and thumbnail");
       return;
     }
+    if (videoFileInput.size > 90 * 1024 * 1024)
+      return message.error("Video file size exceeds 90MB limit");
+
+    if (thumbnailFileInput.size > 5 * 1024 * 1024)
+      return message.error("Thumbnail file size exceeds 5MB limit");
     console.log("thumbnail", thumbnailFileInput);
     console.log("video", videoFileInput);
     // prepare metadata base. ther fileds like image, animation_url, content will be added in the api after uploading
@@ -47,18 +53,14 @@ export default function UploadDrawer() {
     formData.append("videoFile", videoFileInput);
     formData.append("metadataBase", JSON.stringify(metadataBase));
     try {
-      const res = await fetch("/api/pinata/upload", {
-        method: "POST",
-        body: formData
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Error uploading video assets to IPFS:", error);
+      const uploadRes = await uploadVideoAssets(formData);
+      if (uploadRes?.error) {
+        console.error("Error uploading video assets to IPFS:", uploadRes.error);
         return message.error(
-          "Failed to upload video assets to IPFS. Please try again."
+          `Failed to upload video assets to IPFS. ${uploadRes.error}`
         );
       }
-      const { metadata, video, thumbnail } = await res.json();
+      const { metadata, video, thumbnail } = uploadRes;
       console.log("uploadRes", { metadata, video, thumbnail });
       const metadataCID = metadata.cid;
       const videoCID = video.cid;

@@ -1,17 +1,18 @@
-import { pinFilesToIPFS, pinJSONToIPFS } from "@/app/utils/pinata";
-import { NextResponse } from "next/server";
+"use server";
+import { PinataSDK } from "pinata";
+import { errorResponse } from "./utils";
 
-export async function POST(request) {
-  const formData = await request.formData();
+const pinata = new PinataSDK({
+  pinataJwt: process.env.PINATA_JWT,
+  pinataGateway: process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL
+});
+
+export async function uploadVideoAssets(formData) {
   const thumbnailFile = formData.get("thumbnailFile");
   const videoFile = formData.get("videoFile");
   const metadataBase = formData.get("metadataBase");
-  if (!metadataBase) {
-    return NextResponse.json(
-      { error: "MetadataBase is required" },
-      { status: 400 }
-    );
-  }
+  if (!metadataBase)
+    return errorResponse("Metadata base is required", 400, true);
   const metadataBaseJson = JSON.parse(metadataBase);
   console.log("upload input", {
     thumbnailFile,
@@ -24,12 +25,8 @@ export async function POST(request) {
     if (thumbnailFile) filesToPin.push(thumbnailFile);
     if (videoFile) filesToPin.push(videoFile);
     if (filesToPin.length) {
-      const uploadRes = await pinFilesToIPFS(filesToPin, {
-        metadata: {
-          name: `VidVerse_${metadataBaseJson.name}_assets_${Date.now()}`
-        }
-      });
-
+      const uploadRes = await pinata.upload.public.fileArray(filesToPin, {});
+      console.log("uploadRes", uploadRes);
       folderCID = uploadRes.cid;
     }
 
@@ -48,14 +45,10 @@ export async function POST(request) {
     };
     console.log("finalMetadata before uploading to IPFS", finalMetadata);
     // pin the metadata to IPFS
-    const metadataRes = await pinJSONToIPFS(finalMetadata, {
-      metadata: {
-        name: `VidVerse_${metadataBaseJson.name}_metadata_${Date.now()}`
-      }
-    });
+    const metadataRes = await pinata.upload.public.json(finalMetadata, {});
     // add the metadata to the results
     console.log("metadataRes", metadataRes);
-    return NextResponse.json({
+    return {
       metadata: metadataRes,
       video: {
         cid: finalMetadata.animation_url.split("ipfs://")[1]
@@ -63,19 +56,9 @@ export async function POST(request) {
       thumbnail: {
         cid: finalMetadata.image.split("ipfs://")[1]
       }
-    });
+    };
   } catch (error) {
     console.error("Error uploading video assets to IPFS:", error);
-    return NextResponse.json(
-      { error: "Failed to upload video assets to IPFS. Please try again." },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
-}
-
-export async function GET(request) {
-  // welcome to the Pinata API
-  return NextResponse.json({
-    message: "Welcome to pinata upload!"
-  });
 }
