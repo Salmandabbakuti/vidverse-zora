@@ -23,7 +23,16 @@ contract VidVerse {
         uint256 createdAt;
     }
 
+    struct Comment {
+        uint256 id;
+        uint256 videoId;
+        string comment;
+        address author;
+        uint256 createdAt;
+    }
+
     mapping(uint256 id => Video video) public videos;
+    mapping(uint256 id => Comment[] comments) public videoComments;
 
     event VideoAdded(
         uint256 indexed id,
@@ -46,6 +55,14 @@ contract VidVerse {
         string location,
         string thumbnailHash,
         string metadataHash
+    );
+
+    event VideoCommented(
+        uint256 indexed id,
+        uint256 indexed videoId,
+        string comment,
+        address indexed author,
+        uint256 createdAt
     );
 
     constructor(address _zoraFactory) {
@@ -184,5 +201,38 @@ contract VidVerse {
             video.thumbnailHash,
             _metadataHash
         );
+    }
+
+    function commentVideo(
+        uint256 _videoId,
+        string memory _comment
+    ) external onlyExistingVideo(_videoId) {
+        require(
+            bytes(_comment).length > 0 && bytes(_comment).length <= 280,
+            "Comment must be 1-280 characters long"
+        );
+        // Check if the sender holds the coin
+        ICoin coin = ICoin(videos[_videoId].coinAddress);
+        require(
+            coin.balanceOf(msg.sender) > 0,
+            "You must hold the video coin to comment"
+        );
+        uint256 commentId = videoComments[_videoId].length;
+        videoComments[_videoId].push(
+            Comment(commentId, _videoId, _comment, msg.sender, block.timestamp)
+        );
+        emit VideoCommented(
+            commentId,
+            _videoId,
+            _comment,
+            msg.sender,
+            block.timestamp
+        );
+    }
+
+    function getVideoComments(
+        uint256 _videoId
+    ) external view onlyExistingVideo(_videoId) returns (Comment[] memory) {
+        return videoComments[_videoId];
     }
 }

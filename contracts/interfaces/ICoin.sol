@@ -2,6 +2,8 @@
 pragma solidity 0.8.28;
 
 interface ICoin {
+    function balanceOf(address account) external view returns (uint256);
+
     function setContractURI(string memory newURI) external;
 
     function setPayoutRecipient(address newPayoutRecipient) external;
