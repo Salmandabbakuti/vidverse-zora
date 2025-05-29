@@ -21,15 +21,13 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   LikeOutlined,
-  LikeFilled,
-  CommentOutlined
+  LikeFilled
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { getCoin, createCoin } from "@zoralabs/coins-sdk";
 import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
 import VideoEditDrawer from "@/app/components/VideoEditDrawer";
@@ -44,8 +42,6 @@ dayjs.extend(relativeTime);
 export default function VideoPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [video, setVideo] = useState(null);
-  const [coinDetailsLoading, setCoinDetailsLoading] = useState(true);
-  const [coinDetails, setCoinDetails] = useState(null);
   const [isLiking, setIsLiking] = useState(false);
   const [isVideoLiked, setIsVideoLiked] = useState(false);
 
@@ -70,25 +66,6 @@ export default function VideoPage({ params }) {
       setLoading(false);
       console.error("Error fetching video:", error);
       message.error("Failed to fetch video");
-    }
-  };
-
-  const getCoinDetails = async () => {
-    if (!video?.coinAddress) return;
-    setCoinDetailsLoading(true);
-    message.info("Hang tight! Fetching coin details..");
-    try {
-      const res = await getCoin({
-        address: video?.coinAddress,
-        chain: 84532 // base sepolia
-      });
-      console.log("Coin res:", res);
-      const coin = res?.data?.zora20Token;
-      setCoinDetails(coin);
-      setCoinDetailsLoading(false);
-    } catch (error) {
-      setCoinDetailsLoading(false);
-      console.error("Error fetching coin details:", error);
     }
   };
 
@@ -140,12 +117,6 @@ export default function VideoPage({ params }) {
       isVideoLikedByUser();
     }
   }, [id, account]);
-
-  useEffect(() => {
-    if (video?.coinAddress) {
-      getCoinDetails();
-    }
-  }, [video?.coinAddress]);
 
   if (!loading && !video?.videoHash) {
     return (
@@ -360,11 +331,7 @@ export default function VideoPage({ params }) {
           </div>
         </Col>
         <Col xs={24} md={8}>
-          {coinDetailsLoading ? (
-            <Card loading style={{ borderRadius: "20px", minHeight: 600 }} />
-          ) : (
-            <CoinCard coinDetails={coinDetails} />
-          )}
+          <CoinCard coinAddress={video?.coinAddress} />
         </Col>
       </Row>
     </div>

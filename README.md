@@ -150,6 +150,12 @@ npm run dev
 
 ## Changelog
 
+## 0.2.0
+
+- Added video social dynamics: likes, holder-only comments
+- Simplified metadata generation and increased upload size limits for videos and thumbnails
+- Integrated Buy, sell video coins in watch page with Zora SDK
+
 ### 0.1.0
 
 - Initial release

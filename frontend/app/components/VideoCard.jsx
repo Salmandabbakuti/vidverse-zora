@@ -1,6 +1,10 @@
 import React from "react";
-import { Card, Avatar, Typography, Image } from "antd";
-import { CheckCircleTwoTone } from "@ant-design/icons";
+import { Card, Avatar, Typography, Image, Space } from "antd";
+import {
+  CheckCircleTwoTone,
+  LikeOutlined,
+  MessageOutlined
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import styles from "./VideoCard.module.css";
@@ -54,6 +58,14 @@ export default function VideoCard({ video }) {
                 " • " +
                 dayjs(Number(video?.createdAt) * 1000).fromNow()}
             </Text>
+            <Space className={styles.stats}>
+              <span>
+                <LikeOutlined /> {video?.likesCount || 0}
+              </span>
+              <span>
+                <MessageOutlined /> {video?.commentsCount || 0}
+              </span>
+            </Space>
           </div>
         }
       />

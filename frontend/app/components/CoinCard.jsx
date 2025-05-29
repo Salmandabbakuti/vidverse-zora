@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -13,14 +13,16 @@ import {
   Tag
 } from "antd";
 import dayjs from "dayjs";
-import { tradeCoin, simulateBuy } from "@zoralabs/coins-sdk";
+import { tradeCoin, getCoin } from "@zoralabs/coins-sdk";
 import { usePublicClient, useWalletClient, useAccount } from "wagmi";
 import { parseEther } from "viem";
 import { EXPLORER_URL } from "@/app/utils/constants";
 import { abbreviateNumber } from "@/app/utils";
 import Typography from "antd/es/typography/Typography";
 
-export default function CoinCard({ coinDetails = {} }) {
+export default function CoinCard({ coinAddress }) {
+  const [coinDetails, setCoinDetails] = useState(null);
+  const [coinDetailsLoading, setCoinDetailsLoading] = useState(true);
   const [tradeCoinInput, setTradeCoinInput] = useState(null);
   const [loading, setLoading] = useState({
     buy: false,
@@ -30,6 +32,25 @@ export default function CoinCard({ coinDetails = {} }) {
 
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient({ chainId: 84532 });
+
+  const getCoinDetails = async () => {
+    if (!coinAddress) return;
+    setCoinDetailsLoading(true);
+    message.info("Hang tight! Fetching coin details..");
+    try {
+      const res = await getCoin({
+        address: coinAddress,
+        chain: 84532 // base sepolia
+      });
+      console.log("Coin res:", res);
+      const coin = res?.data?.zora20Token;
+      setCoinDetails(coin);
+      setCoinDetailsLoading(false);
+    } catch (error) {
+      setCoinDetailsLoading(false);
+      console.error("Error fetching coin details:", error);
+    }
+  };
 
   const handleTradeCoin = async (direction) => {
     if (!coinDetails) return;
@@ -79,8 +100,15 @@ export default function CoinCard({ coinDetails = {} }) {
     }
   };
 
+  useEffect(() => {
+    getCoinDetails();
+  }, [coinAddress]);
+
   return (
     <Card
+      loading={coinDetailsLoading}
+      hoverable
+      variant="outlined"
       title={<Tag color="blue">{coinDetails?.name}</Tag>}
       style={{ borderRadius: "20px" }}
       actions={[<small style={{ color: "gray" }}>Powered by Zora</small>]}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, List, Avatar, Button, Space, Typography, message } from "antd";
+import { CommentOutlined } from "@ant-design/icons";
 import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import dayjs from "dayjs";
@@ -69,7 +70,7 @@ export default function CommentSection({ videoId }) {
   return (
     <>
       <Typography.Title level={5} style={{ marginBottom: "10px" }}>
-        Comments ({comments?.length || 0})
+        <CommentOutlined /> Comments ({comments?.length || 0})
       </Typography.Title>
       <Input
         type="text"
