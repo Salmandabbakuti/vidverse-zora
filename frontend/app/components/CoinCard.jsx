@@ -28,8 +28,8 @@ export default function CoinCard({ coinAddress }) {
     buy: false,
     sell: false
   });
-  const { address: account } = useAccount();
 
+  const { address: account } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient({ chainId: 84532 });
 
@@ -71,18 +71,6 @@ export default function CoinCard({ coinAddress }) {
         }
       };
       console.log("Trade params:", tradeParams);
-      // if direction buy, simulate buy
-      if (direction === "buy") {
-        // const simulateRes = await simulateBuy({
-        //   target: coinDetails?.address,
-        //   requestedOrderSize: parseEther(tradeCoinInput),
-        //   publicClient
-        // });
-        // console.log("buy simulation res:", simulateRes);
-        // message.info(
-        //   `You'll receive ${simulateRes?.amountOut} ${coinDetails?.symbol} for the requested order size of ${tradeCoinInput}`
-        // );
-      }
       const res = await tradeCoin(tradeParams, walletClient, publicClient);
       console.log("Trade coin res:", res);
       const infoMessage =

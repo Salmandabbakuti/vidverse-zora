@@ -9,10 +9,8 @@ import {
   Typography,
   Divider,
   Button,
-  Empty,
   Space,
   Image,
-  Tabs,
   Result
 } from "antd";
 import {
@@ -57,9 +55,6 @@ export default function VideoPage({ params }) {
       // fetch video from contract
       const video = await vidverseContract.videos(id);
       console.log("Video fetched:", video);
-      console.log(video?.createdAt, "createdAt");
-      console.log(video?.likesCount, "likesCount");
-      console.log(video?.commentsCount, "commentsCount");
       setVideo(video);
       setLoading(false);
     } catch (error) {
@@ -80,11 +75,11 @@ export default function VideoPage({ params }) {
         .toggleLikeVideo(id);
       console.log("Transaction submitted:", toggleLikeTx);
       await toggleLikeTx.wait();
-      // Update local state to reflect the like
-      setIsVideoLiked((prev) => !prev);
       message.success(
         `Video ${isVideoLiked ? "unliked" : "liked"} successfully!`
       );
+      // Update local state to reflect the like
+      setIsVideoLiked((prev) => !prev);
     } catch (error) {
       console.error("Error liking video:", error);
       message.error("Failed to like video. Please try again.");
