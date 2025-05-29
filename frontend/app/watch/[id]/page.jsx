@@ -11,22 +11,30 @@ import {
   Button,
   Empty,
   Space,
-  Image
+  Image,
+  Tabs,
+  Result
 } from "antd";
 import {
   HeartTwoTone,
   CheckCircleTwoTone,
   ShareAltOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  LikeOutlined,
+  LikeFilled,
+  CommentOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useAppKitAccount } from "@reown/appkit/react";
+import Link from "next/link";
+import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
+import { useEthersSigner } from "@/app/hooks/ethers";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { getCoin } from "@zoralabs/coins-sdk";
+import { getCoin, createCoin } from "@zoralabs/coins-sdk";
 import Plyr from "plyr-react";
 import "plyr-react/plyr.css";
 import VideoEditDrawer from "@/app/components/VideoEditDrawer";
 import CoinCard from "@/app/components/CoinCard";
+import CommentSection from "@/app/components/CommentSection";
 import { ellipsisString, vidverseContract } from "@/app/utils";
 import { EXPLORER_URL } from "@/app/utils/constants";
 
@@ -38,9 +46,14 @@ export default function VideoPage({ params }) {
   const [video, setVideo] = useState(null);
   const [coinDetailsLoading, setCoinDetailsLoading] = useState(true);
   const [coinDetails, setCoinDetails] = useState(null);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isVideoLiked, setIsVideoLiked] = useState(false);
 
   const { id } = use(params);
   const { address: account } = useAppKitAccount();
+  const { selectedNetworkId } = useAppKitState();
+
+  const signer = useEthersSigner();
 
   const fetchVideo = async () => {
     setLoading(true);
@@ -48,6 +61,9 @@ export default function VideoPage({ params }) {
       // fetch video from contract
       const video = await vidverseContract.videos(id);
       console.log("Video fetched:", video);
+      console.log(video?.createdAt, "createdAt");
+      console.log(video?.likesCount, "likesCount");
+      console.log(video?.commentsCount, "commentsCount");
       setVideo(video);
       setLoading(false);
     } catch (error) {
@@ -76,6 +92,43 @@ export default function VideoPage({ params }) {
     }
   };
 
+  const handleToggleLikeVideo = async () => {
+    if (!account) return message.error("Please connect your wallet first");
+    if (selectedNetworkId !== "eip155:84532")
+      return message.error("Please switch to Base Sepolia Testnet");
+    setIsLiking(true);
+    try {
+      const toggleLikeTx = await vidverseContract
+        .connect(signer)
+        .toggleLikeVideo(id);
+      console.log("Transaction submitted:", toggleLikeTx);
+      await toggleLikeTx.wait();
+      // Update local state to reflect the like
+      setIsVideoLiked((prev) => !prev);
+      message.success(
+        `Video ${isVideoLiked ? "unliked" : "liked"} successfully!`
+      );
+    } catch (error) {
+      console.error("Error liking video:", error);
+      message.error("Failed to like video. Please try again.");
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+  const isVideoLikedByUser = async () => {
+    if (!account) return false; // If no account is connected, return false
+    try {
+      const isLiked = await vidverseContract.isVideoLikedByUser(id, account);
+      console.log(`Video ${id} liked by user ${account}: ${isLiked}`);
+      setIsVideoLiked(isLiked);
+      return isLiked;
+    } catch (err) {
+      console.error("Failed to check if video is liked by user:", err);
+      return false;
+    }
+  };
+
   const isVideoOwner = useMemo(() => {
     if (!video || !account) return false;
     return video?.owner?.toLowerCase() === account?.toLowerCase();
@@ -83,6 +136,9 @@ export default function VideoPage({ params }) {
 
   useEffect(() => {
     fetchVideo();
+    if (account) {
+      isVideoLikedByUser();
+    }
   }, [id, account]);
 
   useEffect(() => {
@@ -93,16 +149,18 @@ export default function VideoPage({ params }) {
 
   if (!loading && !video?.videoHash) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%"
-        }}
-      >
-        <Empty description="Video not found" />
-      </div>
+      <Result
+        status="404"
+        title="Video Not Found"
+        subTitle="Sorry, the video you are looking for does not exist."
+        extra={
+          <Link href="/">
+            <Button type="primary" shape="round">
+              Back Home
+            </Button>
+          </Link>
+        }
+      />
     );
   }
   return (
@@ -162,7 +220,21 @@ export default function VideoPage({ params }) {
                   {video?.title}
                 </Title>
                 {/* Actions on the right */}
-                <Space size="middle">
+                <Space size="small" wrap>
+                  <Button
+                    type="text"
+                    loading={isLiking}
+                    icon={
+                      isVideoLiked ? (
+                        <LikeFilled style={{ color: "#1677ff" }} />
+                      ) : (
+                        <LikeOutlined style={{ color: "#1677ff" }} />
+                      )
+                    }
+                    onClick={handleToggleLikeVideo}
+                  >
+                    {video?.likesCount || 0}
+                  </Button>
                   <a
                     href={`https://ipfs.io/ipfs/${video?.videoHash}`}
                     target="_blank"
@@ -275,6 +347,17 @@ export default function VideoPage({ params }) {
               </Row>
             </div>
           )}
+          <div
+            style={{
+              marginTop: "5px",
+              overflow: "hidden",
+              borderRadius: "10px",
+              backgroundColor: "white",
+              padding: "10px"
+            }}
+          >
+            <CommentSection videoId={id} />
+          </div>
         </Col>
         <Col xs={24} md={8}>
           {coinDetailsLoading ? (

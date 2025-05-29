@@ -20,6 +20,8 @@ contract VidVerse {
         string videoHash;
         address owner;
         address coinAddress;
+        uint256 likesCount;
+        uint256 commentsCount;
         uint256 createdAt;
     }
 
@@ -33,6 +35,8 @@ contract VidVerse {
 
     mapping(uint256 id => Video video) public videos;
     mapping(uint256 id => Comment[] comments) public videoComments;
+    mapping(uint256 videoId => mapping(address user => bool isLiked))
+        public isVideoLikedByUser;
 
     event VideoAdded(
         uint256 indexed id,
@@ -63,6 +67,12 @@ contract VidVerse {
         string comment,
         address indexed author,
         uint256 createdAt
+    );
+
+    event VideoLikeToggled(
+        uint256 indexed videoId,
+        address indexed user,
+        bool isLiked
     );
 
     constructor(address _zoraFactory) {
@@ -142,6 +152,8 @@ contract VidVerse {
             _videoHash,
             msg.sender,
             coinAddr,
+            0, // likesCount
+            0, // commentsCount
             block.timestamp
         );
 
@@ -217,7 +229,7 @@ contract VidVerse {
             coin.balanceOf(msg.sender) > 0,
             "You must hold the video coin to comment"
         );
-        uint256 commentId = videoComments[_videoId].length;
+        uint256 commentId = videos[_videoId].commentsCount++;
         videoComments[_videoId].push(
             Comment(commentId, _videoId, _comment, msg.sender, block.timestamp)
         );
@@ -228,6 +240,24 @@ contract VidVerse {
             msg.sender,
             block.timestamp
         );
+    }
+
+    function toggleLikeVideo(
+        uint256 _videoId
+    ) external onlyExistingVideo(_videoId) returns (bool isLiked) {
+        // check if user has already liked the video
+        bool isLikedAlready = isVideoLikedByUser[_videoId][msg.sender];
+        // toggle like status and update likes count
+        if (isLikedAlready) {
+            videos[_videoId].likesCount--;
+            isVideoLikedByUser[_videoId][msg.sender] = false;
+            isLiked = false;
+        } else {
+            videos[_videoId].likesCount++;
+            isVideoLikedByUser[_videoId][msg.sender] = true;
+            isLiked = true;
+        }
+        emit VideoLikeToggled(_videoId, msg.sender, isLiked);
     }
 
     function getVideoComments(
