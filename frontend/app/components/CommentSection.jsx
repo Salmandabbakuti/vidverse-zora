@@ -61,8 +61,12 @@ export default function CommentSection({ videoId }) {
       setComments((prevComments) => [newComment, ...prevComments]);
       message.success("Comment added!");
     } catch (error) {
-      console.error(error);
-      message.error("Failed to add comment. Please try again.");
+      console.error("Error adding comment:", error);
+      message.error(
+        `Failed to add comment: ${
+          error?.shortMessage || "Please try again later"
+        }`
+      );
     } finally {
       setLoading(false);
     }

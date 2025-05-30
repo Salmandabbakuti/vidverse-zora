@@ -82,7 +82,11 @@ export default function VideoPage({ params }) {
       setIsVideoLiked((prev) => !prev);
     } catch (error) {
       console.error("Error liking video:", error);
-      message.error("Failed to like video. Please try again.");
+      message.error(
+        `Failed to toggle like on video: ${
+          error?.shortMessage || "Please try again later"
+        }`
+      );
     } finally {
       setIsLiking(false);
     }

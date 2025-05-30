@@ -96,8 +96,12 @@ export default function VideoEditDrawer({ video: videoData }) {
       // Refresh the page to show the updated video after 3 seconds
       setTimeout(() => router.refresh(), 5000);
     } catch (error) {
-      console.error(error);
-      message.error("Failed to update video info. Please try again.");
+      console.error("Error updating video info:", error);
+      message.error(
+        `Failed to update video info: ${
+          error?.shortMessage || "Please try again later"
+        }`
+      );
     } finally {
       setLoading(false);
     }

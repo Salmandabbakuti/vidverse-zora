@@ -99,8 +99,12 @@ export default function UploadDrawer() {
       // Refresh the page to show the new video after 3 seconds
       setTimeout(() => router.push("/"), 5000);
     } catch (error) {
-      console.error(error);
-      message.error("Failed to upload video. Please try again.");
+      console.error("Error uploading video:", error);
+      message.error(
+        `Failed to upload video: ${
+          error?.shortMessage || "Please try again later"
+        }`
+      );
     } finally {
       setLoading(false);
     }
