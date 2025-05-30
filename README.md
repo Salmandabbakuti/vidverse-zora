@@ -154,9 +154,9 @@ npm run dev
 
 ## 0.2.0
 
-- Added video social dynamics: likes, holder-only comments
+- Added video social dynamics: likes, holder-only comments implementation in contract
 - Added holder comment section, likes to watch page and video stats(comments, likes) to video listing cards
-- Simplified metadata generation and increased upload size limits for videos and thumbnails
+- Increased video and thumbnail upload size limits, simplified metadata generation
 - Integrated Buy, sell video coins in watch page with Zora SDK
 
 ### 0.1.0
