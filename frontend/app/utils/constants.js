@@ -1,3 +1,3 @@
 export const VIDVERSE_CONTRACT_ADDRESS =
-  "0xB7C6073730A9993Aff7F96CA15abf31A465936A3";
+  "0x1B599Ea04b5cD3736f571bdc92e0E2760EF13323";
 export const EXPLORER_URL = "https://sepolia.basescan.org";

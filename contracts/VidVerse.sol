@@ -107,10 +107,10 @@ contract VidVerse {
         // name and symbol should be unique for each video
         // like "VidVerse - <videoId>", "VID-<videoId>"
         string memory name = string(
-            abi.encodePacked("VidVerse#", videoId.toString())
+            abi.encodePacked("VidVerse", videoId.toString())
         );
         string memory symbol = string(
-            abi.encodePacked("VV#", videoId.toString())
+            abi.encodePacked("VID", videoId.toString())
         );
         // metadataUri is the IPFS uri in the format of "ipfs://<metadataHash>"
         string memory metadataUri = string(
@@ -120,16 +120,6 @@ contract VidVerse {
         address[] memory owners = new address[](2);
         owners[0] = msg.sender;
         owners[1] = address(this); // contract itself is also an owner to update metadata and rewards share
-        // config parameters for the Uniswap v3 pool; `abi.encode(address currency, int24 tickLower, int24 tickUpper, uint16 numDiscoveryPositions, uint256 maxDiscoverySupplyShare)`
-        // values may not be accurate, and zora team isn't helpful in providing the right values at all
-        bytes memory poolConfig = abi.encode(
-            2, // version
-            address(0), // currency use address(0) for ETH/WETH
-            -250000, // tickLower -250000 for WETH/ETH pairs
-            -200000, // tickUpper -200000 for for WETH/ETH pairs
-            10, // numDiscoveryPositions
-            50000000000000000 // maxDiscoverySupplyShare
-        );
         // Deploy coin via ZoraFactory
         (address coinAddr, ) = zoraFactory.deploy{value: msg.value}(
             msg.sender, // payoutRecipient
@@ -137,8 +127,9 @@ contract VidVerse {
             metadataUri,
             name,
             symbol,
-            poolConfig,
             msg.sender, // platformReferrer
+            0x4200000000000000000000000000000000000006, // currency - WETH
+            -208200, // tickLower -208200 for WETH/ETH pairs
             msg.value // orderSize - must match msg.value
         );
 

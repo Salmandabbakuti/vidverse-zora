@@ -148,11 +148,14 @@ npm run dev
 
 ![vidverse-zora-video-page-sc](https://github.com/user-attachments/assets/66271eba-eec0-4398-8f23-795a4466bb1d)
 
+![vv0 2-zora-watch-comments-view-sc](https://github.com/user-attachments/assets/6607c01f-192e-410b-906e-82b7607edf5c)
+
 ## Changelog
 
 ## 0.2.0
 
 - Added video social dynamics: likes, holder-only comments
+- Added holder comment section, likes to watch page and video stats(comments, likes) to video listing cards
 - Simplified metadata generation and increased upload size limits for videos and thumbnails
 - Integrated Buy, sell video coins in watch page with Zora SDK
 

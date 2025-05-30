@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, List, Avatar, Button, Space, Typography, message } from "antd";
-import { CommentOutlined } from "@ant-design/icons";
+import { CommentOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useAppKitAccount, useAppKitState } from "@reown/appkit/react";
 import { useEthersSigner } from "@/app/hooks/ethers";
 import dayjs from "dayjs";
@@ -52,12 +52,13 @@ export default function CommentSection({ videoId }) {
       setCommentInput("");
       console.log("addCommentTx", addCommentTx);
       // add comment to state
-      comments.unshift({
-        id: comments.length + 1,
-        comment: commentInput,
+      const newComment = {
+        id: addCommentTx?.hash,
         author: account,
-        createdAt: Math.floor(Date.now() / 1000)
-      });
+        comment: commentInput,
+        createdAt: Math.floor(Date.now() / 1000) // current timestamp in seconds
+      };
+      setComments((prevComments) => [newComment, ...prevComments]);
       message.success("Comment added!");
     } catch (error) {
       console.error(error);
@@ -69,9 +70,13 @@ export default function CommentSection({ videoId }) {
 
   return (
     <>
-      <Typography.Title level={5} style={{ marginBottom: "10px" }}>
-        <CommentOutlined /> Comments ({comments?.length || 0})
+      <Typography.Title level={5}>
+        <CommentOutlined /> Holder Comments ({comments?.length || 0})
       </Typography.Title>
+      <Typography.Text type="secondary">
+        <InfoCircleOutlined /> Only coin holders can comment on this video.
+        Please buy a coin to comment.
+      </Typography.Text>
       <Input
         type="text"
         autoFocus={true}
@@ -129,7 +134,7 @@ export default function CommentSection({ videoId }) {
                     {ellipsisString(item?.author, 8, 5)}
                   </Typography.Text>
                   <Typography.Text type="secondary">
-                    {dayjs(item?.createdAt * 1000).fromNow()}
+                    {dayjs(Number(item?.createdAt) * 1000).fromNow()}
                   </Typography.Text>
                 </Space>
               }
